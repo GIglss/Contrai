@@ -19,7 +19,6 @@ load_dotenv()
 # sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'yapily_sdk/yapily_api_client/api/'))
 
 import yapily_sdk.yapily_api_client as yapily
-# import yapily_sdk.yapily_api_client.api as yapily_api
 from yapily_sdk.yapily_api_client.api.institutions import get_institutions
 
 
