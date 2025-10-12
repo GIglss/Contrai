@@ -1,0 +1,198 @@
+from http import HTTPStatus
+from typing import Any, Optional, Union
+
+import httpx
+
+from ... import errors
+from ...client import AuthenticatedClient, Client
+from ...models.api_response_error import ApiResponseError
+from ...models.api_response_of_create_hosted_vrp_consent_request import ApiResponseOfCreateHostedVRPConsentRequest
+from ...models.create_hosted_vrp_consent_request import CreateHostedVRPConsentRequest
+from ...types import Response
+
+
+def _get_kwargs(
+    *,
+    body: CreateHostedVRPConsentRequest,
+    sub_application: str,
+) -> dict[str, Any]:
+    headers: dict[str, Any] = {}
+    headers["sub-application"] = sub_application
+
+    _kwargs: dict[str, Any] = {
+        "method": "post",
+        "url": "/hosted/vrp/consent-requests",
+    }
+
+    _kwargs["json"] = body.to_dict()
+
+    headers["Content-Type"] = "application/json;charset=UTF-8"
+
+    _kwargs["headers"] = headers
+    return _kwargs
+
+
+def _parse_response(
+    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+) -> Optional[Union[ApiResponseError, ApiResponseOfCreateHostedVRPConsentRequest]]:
+    if response.status_code == 201:
+        response_201 = ApiResponseOfCreateHostedVRPConsentRequest.from_dict(response.json())
+
+        return response_201
+
+    if response.status_code == 400:
+        response_400 = ApiResponseError.from_dict(response.json())
+
+        return response_400
+
+    if response.status_code == 401:
+        response_401 = ApiResponseError.from_dict(response.json())
+
+        return response_401
+
+    if response.status_code == 500:
+        response_500 = ApiResponseError.from_dict(response.json())
+
+        return response_500
+
+    if client.raise_on_unexpected_status:
+        raise errors.UnexpectedStatus(response.status_code, response.content)
+    else:
+        return None
+
+
+def _build_response(
+    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+) -> Response[Union[ApiResponseError, ApiResponseOfCreateHostedVRPConsentRequest]]:
+    return Response(
+        status_code=HTTPStatus(response.status_code),
+        content=response.content,
+        headers=response.headers,
+        parsed=_parse_response(client=client, response=response),
+    )
+
+
+def sync_detailed(
+    *,
+    client: Union[AuthenticatedClient, Client],
+    body: CreateHostedVRPConsentRequest,
+    sub_application: str,
+) -> Response[Union[ApiResponseError, ApiResponseOfCreateHostedVRPConsentRequest]]:
+    """Create VRP Consent
+
+     Used to initiate a VRP consent / mandate request through Yapily Hosted Pages
+
+    Args:
+        sub_application (str):
+        body (CreateHostedVRPConsentRequest):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Response[Union[ApiResponseError, ApiResponseOfCreateHostedVRPConsentRequest]]
+    """
+
+    kwargs = _get_kwargs(
+        body=body,
+        sub_application=sub_application,
+    )
+
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
+
+    return _build_response(client=client, response=response)
+
+
+def sync(
+    *,
+    client: Union[AuthenticatedClient, Client],
+    body: CreateHostedVRPConsentRequest,
+    sub_application: str,
+) -> Optional[Union[ApiResponseError, ApiResponseOfCreateHostedVRPConsentRequest]]:
+    """Create VRP Consent
+
+     Used to initiate a VRP consent / mandate request through Yapily Hosted Pages
+
+    Args:
+        sub_application (str):
+        body (CreateHostedVRPConsentRequest):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Union[ApiResponseError, ApiResponseOfCreateHostedVRPConsentRequest]
+    """
+
+    return sync_detailed(
+        client=client,
+        body=body,
+        sub_application=sub_application,
+    ).parsed
+
+
+async def asyncio_detailed(
+    *,
+    client: Union[AuthenticatedClient, Client],
+    body: CreateHostedVRPConsentRequest,
+    sub_application: str,
+) -> Response[Union[ApiResponseError, ApiResponseOfCreateHostedVRPConsentRequest]]:
+    """Create VRP Consent
+
+     Used to initiate a VRP consent / mandate request through Yapily Hosted Pages
+
+    Args:
+        sub_application (str):
+        body (CreateHostedVRPConsentRequest):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Response[Union[ApiResponseError, ApiResponseOfCreateHostedVRPConsentRequest]]
+    """
+
+    kwargs = _get_kwargs(
+        body=body,
+        sub_application=sub_application,
+    )
+
+    response = await client.get_async_httpx_client().request(**kwargs)
+
+    return _build_response(client=client, response=response)
+
+
+async def asyncio(
+    *,
+    client: Union[AuthenticatedClient, Client],
+    body: CreateHostedVRPConsentRequest,
+    sub_application: str,
+) -> Optional[Union[ApiResponseError, ApiResponseOfCreateHostedVRPConsentRequest]]:
+    """Create VRP Consent
+
+     Used to initiate a VRP consent / mandate request through Yapily Hosted Pages
+
+    Args:
+        sub_application (str):
+        body (CreateHostedVRPConsentRequest):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Union[ApiResponseError, ApiResponseOfCreateHostedVRPConsentRequest]
+    """
+
+    return (
+        await asyncio_detailed(
+            client=client,
+            body=body,
+            sub_application=sub_application,
+        )
+    ).parsed

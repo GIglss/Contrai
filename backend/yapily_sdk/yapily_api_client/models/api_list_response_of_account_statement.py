@@ -1,0 +1,180 @@
+from collections.abc import Mapping
+from typing import TYPE_CHECKING, Any, TypeVar, Union
+
+from attrs import define as _attrs_define
+from attrs import field as _attrs_field
+
+from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.account_statement import AccountStatement
+    from ..models.api_list_response_of_account_statement_links import ApiListResponseOfAccountStatementLinks
+    from ..models.filtered_client_payload_list_account_statement import FilteredClientPayloadListAccountStatement
+    from ..models.raw_response import RawResponse
+    from ..models.response_forwarded_data import ResponseForwardedData
+    from ..models.response_list_meta import ResponseListMeta
+
+
+T = TypeVar("T", bound="ApiListResponseOfAccountStatement")
+
+
+@_attrs_define
+class ApiListResponseOfAccountStatement:
+    """
+    Attributes:
+        meta (Union[Unset, ResponseListMeta]):
+        data (Union[Unset, list['AccountStatement']]):
+        links (Union[Unset, ApiListResponseOfAccountStatementLinks]):
+        forwarded_data (Union[Unset, list['ResponseForwardedData']]):
+        raw (Union[Unset, list['RawResponse']]):
+        paging (Union[Unset, FilteredClientPayloadListAccountStatement]):
+        tracing_id (Union[Unset, str]):
+    """
+
+    meta: Union[Unset, "ResponseListMeta"] = UNSET
+    data: Union[Unset, list["AccountStatement"]] = UNSET
+    links: Union[Unset, "ApiListResponseOfAccountStatementLinks"] = UNSET
+    forwarded_data: Union[Unset, list["ResponseForwardedData"]] = UNSET
+    raw: Union[Unset, list["RawResponse"]] = UNSET
+    paging: Union[Unset, "FilteredClientPayloadListAccountStatement"] = UNSET
+    tracing_id: Union[Unset, str] = UNSET
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        meta: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.meta, Unset):
+            meta = self.meta.to_dict()
+
+        data: Union[Unset, list[dict[str, Any]]] = UNSET
+        if not isinstance(self.data, Unset):
+            data = []
+            for data_item_data in self.data:
+                data_item = data_item_data.to_dict()
+                data.append(data_item)
+
+        links: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.links, Unset):
+            links = self.links.to_dict()
+
+        forwarded_data: Union[Unset, list[dict[str, Any]]] = UNSET
+        if not isinstance(self.forwarded_data, Unset):
+            forwarded_data = []
+            for forwarded_data_item_data in self.forwarded_data:
+                forwarded_data_item = forwarded_data_item_data.to_dict()
+                forwarded_data.append(forwarded_data_item)
+
+        raw: Union[Unset, list[dict[str, Any]]] = UNSET
+        if not isinstance(self.raw, Unset):
+            raw = []
+            for raw_item_data in self.raw:
+                raw_item = raw_item_data.to_dict()
+                raw.append(raw_item)
+
+        paging: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.paging, Unset):
+            paging = self.paging.to_dict()
+
+        tracing_id = self.tracing_id
+
+        field_dict: dict[str, Any] = {}
+        field_dict.update(self.additional_properties)
+        field_dict.update({})
+        if meta is not UNSET:
+            field_dict["meta"] = meta
+        if data is not UNSET:
+            field_dict["data"] = data
+        if links is not UNSET:
+            field_dict["links"] = links
+        if forwarded_data is not UNSET:
+            field_dict["forwardedData"] = forwarded_data
+        if raw is not UNSET:
+            field_dict["raw"] = raw
+        if paging is not UNSET:
+            field_dict["paging"] = paging
+        if tracing_id is not UNSET:
+            field_dict["tracingId"] = tracing_id
+
+        return field_dict
+
+    @classmethod
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.account_statement import AccountStatement
+        from ..models.api_list_response_of_account_statement_links import ApiListResponseOfAccountStatementLinks
+        from ..models.filtered_client_payload_list_account_statement import FilteredClientPayloadListAccountStatement
+        from ..models.raw_response import RawResponse
+        from ..models.response_forwarded_data import ResponseForwardedData
+        from ..models.response_list_meta import ResponseListMeta
+
+        d = dict(src_dict)
+        _meta = d.pop("meta", UNSET)
+        meta: Union[Unset, ResponseListMeta]
+        if isinstance(_meta, Unset):
+            meta = UNSET
+        else:
+            meta = ResponseListMeta.from_dict(_meta)
+
+        data = []
+        _data = d.pop("data", UNSET)
+        for data_item_data in _data or []:
+            data_item = AccountStatement.from_dict(data_item_data)
+
+            data.append(data_item)
+
+        _links = d.pop("links", UNSET)
+        links: Union[Unset, ApiListResponseOfAccountStatementLinks]
+        if isinstance(_links, Unset):
+            links = UNSET
+        else:
+            links = ApiListResponseOfAccountStatementLinks.from_dict(_links)
+
+        forwarded_data = []
+        _forwarded_data = d.pop("forwardedData", UNSET)
+        for forwarded_data_item_data in _forwarded_data or []:
+            forwarded_data_item = ResponseForwardedData.from_dict(forwarded_data_item_data)
+
+            forwarded_data.append(forwarded_data_item)
+
+        raw = []
+        _raw = d.pop("raw", UNSET)
+        for raw_item_data in _raw or []:
+            raw_item = RawResponse.from_dict(raw_item_data)
+
+            raw.append(raw_item)
+
+        _paging = d.pop("paging", UNSET)
+        paging: Union[Unset, FilteredClientPayloadListAccountStatement]
+        if isinstance(_paging, Unset):
+            paging = UNSET
+        else:
+            paging = FilteredClientPayloadListAccountStatement.from_dict(_paging)
+
+        tracing_id = d.pop("tracingId", UNSET)
+
+        api_list_response_of_account_statement = cls(
+            meta=meta,
+            data=data,
+            links=links,
+            forwarded_data=forwarded_data,
+            raw=raw,
+            paging=paging,
+            tracing_id=tracing_id,
+        )
+
+        api_list_response_of_account_statement.additional_properties = d
+        return api_list_response_of_account_statement
+
+    @property
+    def additional_keys(self) -> list[str]:
+        return list(self.additional_properties.keys())
+
+    def __getitem__(self, key: str) -> Any:
+        return self.additional_properties[key]
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        self.additional_properties[key] = value
+
+    def __delitem__(self, key: str) -> None:
+        del self.additional_properties[key]
+
+    def __contains__(self, key: str) -> bool:
+        return key in self.additional_properties

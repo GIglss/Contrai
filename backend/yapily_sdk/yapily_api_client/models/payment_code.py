@@ -1,0 +1,19 @@
+from enum import Enum
+
+
+class PaymentCode(str, Enum):
+    BILL = "BILL"
+    BILL_IN_ADVANCE = "BILL_IN_ADVANCE"
+    BILL_IN_ARREARS = "BILL_IN_ARREARS"
+    ECOMMERCE_MERCHANT = "ECOMMERCE_MERCHANT"
+    FACE_TO_FACE_POS = "FACE_TO_FACE_POS"
+    GOODS = "GOODS"
+    OTHER = "OTHER"
+    PERSON_TO_PERSON = "PERSON_TO_PERSON"
+    PISP_PAYEE = "PISP_PAYEE"
+    SERVICES = "SERVICES"
+    TRANSFER_TO_SELF = "TRANSFER_TO_SELF"
+    TRANSFER_TO_THIRD_PARTY = "TRANSFER_TO_THIRD_PARTY"
+
+    def __str__(self) -> str:
+        return str(self.value)

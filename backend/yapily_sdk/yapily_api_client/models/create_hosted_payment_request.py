@@ -1,0 +1,136 @@
+from collections.abc import Mapping
+from typing import TYPE_CHECKING, Any, TypeVar, Union
+from uuid import UUID
+
+from attrs import define as _attrs_define
+from attrs import field as _attrs_field
+
+from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.hosted_payment_request_details import HostedPaymentRequestDetails
+    from ..models.institution_identifiers import InstitutionIdentifiers
+    from ..models.user_settings import UserSettings
+
+
+T = TypeVar("T", bound="CreateHostedPaymentRequest")
+
+
+@_attrs_define
+class CreateHostedPaymentRequest:
+    """
+    Attributes:
+        institution_identifiers (InstitutionIdentifiers): Specifies the institution requirements for making the payment.
+            Skips the bank selection screen in payment flow if the `institutionId` and `institutionCountryCode` are
+            provided.
+        redirect_url (str): URL of your server to redirect the user after completion of the payment flow. Example:
+            https://tpp-application.com.
+        payment_request_details (HostedPaymentRequestDetails): Details of the payment.
+        user_id (Union[Unset, UUID]): __Conditional__. Yapily Identifier for the `User` returned by the create user step
+            POST /users. You must provide either a `userId` or `applicationUserId`.
+        application_user_id (Union[Unset, str]): __Conditional__. Your own `User` reference. This field allows you to
+            use your own unique references for individual users. Where the `User` reference doesn't have an associated
+            Yapily `userId`, a new `userId` is created and linked to it. You must provide either a `userId` or
+            `applicationUserId`.
+        user_settings (Union[Unset, UserSettings]): Specifies the language and location preferences of the user.
+    """
+
+    institution_identifiers: "InstitutionIdentifiers"
+    redirect_url: str
+    payment_request_details: "HostedPaymentRequestDetails"
+    user_id: Union[Unset, UUID] = UNSET
+    application_user_id: Union[Unset, str] = UNSET
+    user_settings: Union[Unset, "UserSettings"] = UNSET
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        institution_identifiers = self.institution_identifiers.to_dict()
+
+        redirect_url = self.redirect_url
+
+        payment_request_details = self.payment_request_details.to_dict()
+
+        user_id: Union[Unset, str] = UNSET
+        if not isinstance(self.user_id, Unset):
+            user_id = str(self.user_id)
+
+        application_user_id = self.application_user_id
+
+        user_settings: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.user_settings, Unset):
+            user_settings = self.user_settings.to_dict()
+
+        field_dict: dict[str, Any] = {}
+        field_dict.update(self.additional_properties)
+        field_dict.update(
+            {
+                "institutionIdentifiers": institution_identifiers,
+                "redirectUrl": redirect_url,
+                "paymentRequestDetails": payment_request_details,
+            }
+        )
+        if user_id is not UNSET:
+            field_dict["userId"] = user_id
+        if application_user_id is not UNSET:
+            field_dict["applicationUserId"] = application_user_id
+        if user_settings is not UNSET:
+            field_dict["userSettings"] = user_settings
+
+        return field_dict
+
+    @classmethod
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.hosted_payment_request_details import HostedPaymentRequestDetails
+        from ..models.institution_identifiers import InstitutionIdentifiers
+        from ..models.user_settings import UserSettings
+
+        d = dict(src_dict)
+        institution_identifiers = InstitutionIdentifiers.from_dict(d.pop("institutionIdentifiers"))
+
+        redirect_url = d.pop("redirectUrl")
+
+        payment_request_details = HostedPaymentRequestDetails.from_dict(d.pop("paymentRequestDetails"))
+
+        _user_id = d.pop("userId", UNSET)
+        user_id: Union[Unset, UUID]
+        if isinstance(_user_id, Unset):
+            user_id = UNSET
+        else:
+            user_id = UUID(_user_id)
+
+        application_user_id = d.pop("applicationUserId", UNSET)
+
+        _user_settings = d.pop("userSettings", UNSET)
+        user_settings: Union[Unset, UserSettings]
+        if isinstance(_user_settings, Unset):
+            user_settings = UNSET
+        else:
+            user_settings = UserSettings.from_dict(_user_settings)
+
+        create_hosted_payment_request = cls(
+            institution_identifiers=institution_identifiers,
+            redirect_url=redirect_url,
+            payment_request_details=payment_request_details,
+            user_id=user_id,
+            application_user_id=application_user_id,
+            user_settings=user_settings,
+        )
+
+        create_hosted_payment_request.additional_properties = d
+        return create_hosted_payment_request
+
+    @property
+    def additional_keys(self) -> list[str]:
+        return list(self.additional_properties.keys())
+
+    def __getitem__(self, key: str) -> Any:
+        return self.additional_properties[key]
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        self.additional_properties[key] = value
+
+    def __delitem__(self, key: str) -> None:
+        del self.additional_properties[key]
+
+    def __contains__(self, key: str) -> bool:
+        return key in self.additional_properties
