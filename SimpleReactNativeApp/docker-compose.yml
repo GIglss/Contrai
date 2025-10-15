@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  react-native-app:
+    build: .
+    container_name: simple-react-native-app
+    ports:
+      - "8081:8081"  # Metro bundler
+      - "5037:5037"  # ADB
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - REACT_NATIVE_PACKAGER_HOSTNAME=0.0.0.0
+    networks:
+      - react-native-network
+    privileged: true  # Required for ADB
+    stdin_open: true
+    tty: true
+
+networks:
+  react-native-network:
+    driver: bridge

@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # Simple React Native Metro bundler only
+  react-native-metro:
+    build:
+      context: .
+      dockerfile: Dockerfile.simple
+    container_name: react-native-metro
+    ports:
+      - "8081:8081"  # Metro bundler
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - REACT_NATIVE_PACKAGER_HOSTNAME=0.0.0.0
+    networks:
+      - react-native-network
+
+  # Full Android development environment (use if you need Android builds)
+  react-native-full:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: react-native-full
+    ports:
+      - "8082:8081"  # Metro bundler (different port to avoid conflict)
+      - "5037:5037"  # ADB
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - REACT_NATIVE_PACKAGER_HOSTNAME=0.0.0.0
+    networks:
+      - react-native-network
+    privileged: true
+    profiles:
+      - full  # Only start with --profile full
+
+networks:
+  react-native-network:
+    driver: bridge

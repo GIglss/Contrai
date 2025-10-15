@@ -1,0 +1,30 @@
+# Alternative simpler Dockerfile
+FROM node:18-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Install basic dependencies for React Native
+RUN apk add --no-cache \
+    bash \
+    git \
+    curl \
+    wget
+
+# Install React Native CLI globally
+RUN npm install -g @react-native-community/cli react-native-cli
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Expose Metro bundler port
+EXPOSE 8081
+
+# Start Metro bundler
+CMD ["npm", "start"]
