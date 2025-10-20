@@ -23,7 +23,7 @@ const server = app.listen(APP_PORT, function () {
 });
 
 // Set up the Plaid client
-/*
+
 const plaidConfig = new Configuration({
   basePath: PlaidEnvironments[process.env.PLAID_ENV],
   baseOptions: {
@@ -36,7 +36,7 @@ const plaidConfig = new Configuration({
 });
 
 const plaidClient = new PlaidApi(plaidConfig);
-*/
+
 
 /**
  * Fetches some info about our user from our "database" and returns it to
@@ -60,7 +60,7 @@ app.get("/server/get_user_info", async (req, res, next) => {
  */
 app.post("/server/generate_link_token", async (req, res, next) => {
   try {
-    /*
+    
     // Part 1
 
     const currentUser = await getUserRecord();
@@ -77,13 +77,11 @@ app.post("/server/generate_link_token", async (req, res, next) => {
     });
     const data = createTokenResponse.data;
     console.log("createTokenResponse", data);
-    */
+    
 
-    /*
+    
     res.json({ expiration: data.expiration, linkToken: data.link_token });
-    return;
-   */
-    res.json({ todo: "This endpoint has not yet been implemented" });
+    
   } catch (error) {
     console.log(
       "Running into an error! Note that if you have an error when creating a " +
@@ -101,7 +99,7 @@ app.post("/server/generate_link_token", async (req, res, next) => {
  */
 app.post("/server/swap_public_token", async (req, res, next) => {
   try {
-    /*
+    
     // Part 1
 
     const result = await plaidClient.itemPublicTokenExchange({
@@ -109,9 +107,9 @@ app.post("/server/swap_public_token", async (req, res, next) => {
     });
     const data = result.data;
     console.log("publicTokenExchange data", data);
-    */
+    
 
-    /*
+    // This for multiple banks, should be stored in a database
     const updateData = {};
     updateData[FIELD_ACCESS_TOKEN] = data.access_token;
     updateData[FIELD_ITEM_ID] = data.item_id;
@@ -120,7 +118,7 @@ app.post("/server/swap_public_token", async (req, res, next) => {
     console.log("publicTokenExchange data", data);
     res.json({ success: true });
     return;
-    */
+    
 
     res.json({ todo: "This endpoint has not yet been implemented" });
   } catch (error) {
@@ -133,7 +131,7 @@ app.post("/server/swap_public_token", async (req, res, next) => {
  */
 app.get("/server/simple_auth", async (req, res, next) => {
   try {
-    /*
+    
     // Part 1
 
     const currentUser = await getUserRecord();
@@ -143,9 +141,9 @@ app.get("/server/simple_auth", async (req, res, next) => {
     });
 
     console.dir(authResponse.data, { depth: null });
-    */
+    
 
-    /*
+    
     const accountMask = authResponse.data.accounts[0].mask;
     const accountName = authResponse.data.accounts[0].name;
     const accountId = authResponse.data.accounts[0].account_id;
@@ -158,7 +156,7 @@ app.get("/server/simple_auth", async (req, res, next) => {
     ).routing;
     res.json({ routingNumber, accountMask, accountName });
     return;
-    */
+    
 
     res.json({ todo: "This endpoint has not yet been implemented" });
   } catch (error) {

@@ -20,6 +20,14 @@ class InitViewController: UIViewController {
 
     @IBAction func makeSimpleCallWasPressed(_ sender: Any) {
         // Ask our server to make a call to the Plaid API on behalf of our user
+        self.communicator.callMyServer(path: "/server/simple_auth", httpMethod: .get) { (result: Result<SimpleAuthResponse, ServerCommunicator.Error>) in
+                    switch result {
+                    case .success(let response):
+                        self.simpleCallResults.text = "I retrieved routing number \(response.routingNumber) for \(response.accountName) (xxxxxxxxx\(response.accountMask))"
+                    case .failure(let error):
+                        print("Got an error \(error)")
+                    }
+                }
     }
     
     private func determineUserStatus() {
