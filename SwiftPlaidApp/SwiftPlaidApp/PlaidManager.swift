@@ -1,5 +1,6 @@
 import Foundation
 import LinkKit
+import UIKit
 
 class PlaidManager: ObservableObject {
     @Published var isLinked = false
@@ -87,13 +88,15 @@ class PlaidManager: ObservableObject {
         case .failure(let error):
             statusMessage = "Error creating Plaid Link: \(error.localizedDescription)"
         case .success(let handler):
-            // In a real app, you would present this on the main view controller
-            // For this example, we'll simulate the flow
-            statusMessage = "Plaid Link would open here (simulator)"
-            
-            // Simulate successful connection for testing
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                self.simulateSuccessfulLink()
+            // Present the actual Plaid Link UI
+            DispatchQueue.main.async {
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                   let window = windowScene.windows.first,
+                   let rootViewController = window.rootViewController {
+                    handler.open(presentUsing: rootViewController)
+                } else {
+                    self?.statusMessage = "Could not find root view controller to present Plaid Link"
+                }
             }
         }
     }
@@ -189,36 +192,6 @@ class PlaidManager: ObservableObject {
                 }
             }
         }.resume()
-    }
-    
-    // MARK: - Simulate Successful Link (for testing without real bank)
-    private func simulateSuccessfulLink() {
-        statusMessage = "Simulating successful bank connection..."
-        
-        // Simulate the token exchange
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            self.accessToken = "access-sandbox-example-token"
-            self.isLinked = true
-            self.statusMessage = "✅ Bank account connected successfully! (Simulated)"
-            
-            // Simulate account data
-            self.accountData = [
-                "accounts": [
-                    [
-                        "name": "Plaid Checking",
-                        "type": "depository",
-                        "subtype": "checking",
-                        "balance": ["current": 100.50]
-                    ],
-                    [
-                        "name": "Plaid Savings",
-                        "type": "depository",
-                        "subtype": "savings",
-                        "balance": ["current": 1500.75]
-                    ]
-                ]
-            ]
-        }
     }
     
     // MARK: - Reset Connection
