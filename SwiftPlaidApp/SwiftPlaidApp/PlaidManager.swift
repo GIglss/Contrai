@@ -93,7 +93,9 @@ class PlaidManager: ObservableObject {
                 if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                    let window = windowScene.windows.first,
                    let rootViewController = window.rootViewController {
-                    handler.open(presentUsing: .viewController(rootViewController))
+                    handler.open(presentUsing: .custom({ linkViewController in
+                        rootViewController.present(linkViewController, animated: true)
+                    }))
                 } else {
                     self.statusMessage = "Could not find root view controller to present Plaid Link"
                 }
