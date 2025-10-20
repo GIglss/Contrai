@@ -128,21 +128,16 @@ class PlaidManager: ObservableObject {
                 print("🔄 Presenter: \(type(of: presenter))")
                 
                 // Try the simpler .viewController presentation method
-                do {
-                    handler.open(presentUsing: .viewController(presenter))
-                    print("✅ Plaid Link open call completed")
-                    
-                    // Set a timeout to fall back to simulation if Plaid Link doesn't appear
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                        if self.statusMessage == "Opening Plaid Link..." {
-                            print("⚠️ Plaid Link UI didn't appear after 5 seconds, falling back to simulation")
-                            self.statusMessage = "Plaid Link UI failed to load - using simulation"
-                            self.simulateSuccessfulFlow()
-                        }
+                handler.open(presentUsing: .viewController(presenter))
+                print("✅ Plaid Link open call completed")
+                
+                // Set a timeout to fall back to simulation if Plaid Link doesn't appear
+                DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                    if self.statusMessage == "Opening Plaid Link..." {
+                        print("⚠️ Plaid Link UI didn't appear after 5 seconds, falling back to simulation")
+                        self.statusMessage = "Plaid Link UI failed to load - using simulation"
+                        self.simulateSuccessfulFlow()
                     }
-                } catch {
-                    print("❌ Error in handler.open: \(error)")
-                    self.statusMessage = "Error presenting Plaid Link: \(error.localizedDescription)"
                 }
             }
         }
