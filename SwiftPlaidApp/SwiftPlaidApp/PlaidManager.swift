@@ -104,19 +104,45 @@ class PlaidManager: ObservableObject {
             statusMessage = "Error creating Plaid Link: \(error.localizedDescription)"
         case .success(let handler):
             print("✅ Plaid Link handler created successfully")
-            // Present the actual Plaid Link UI
+            // Try using viewController presentation method instead of custom
             DispatchQueue.main.async {
-                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                   let window = windowScene.windows.first,
-                   let rootViewController = window.rootViewController {
-                    print("🔄 Presenting Plaid Link UI...")
-                    handler.open(presentUsing: .custom({ linkViewController in
-                        print("✅ Plaid Link UI ready to present")
-                        rootViewController.present(linkViewController, animated: true)
-                    }))
-                } else {
-                    print("❌ Could not find root view controller")
-                    self.statusMessage = "Could not find root view controller to present Plaid Link"
+                guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                      let window = windowScene.windows.first else {
+                    print("❌ Could not find window scene")
+                    self.statusMessage = "Could not find window to present Plaid Link"
+                    return
+                }
+                
+                var topController = window.rootViewController
+                while let presentedViewController = topController?.presentedViewController {
+                    topController = presentedViewController
+                }
+                
+                guard let presenter = topController else {
+                    print("❌ Could not find presenter view controller")
+                    self.statusMessage = "Could not find view controller to present Plaid Link"
+                    return
+                }
+                
+                print("🔄 Presenting Plaid Link UI using .viewController method...")
+                print("🔄 Presenter: \(type(of: presenter))")
+                
+                // Try the simpler .viewController presentation method
+                do {
+                    handler.open(presentUsing: .viewController(presenter))
+                    print("✅ Plaid Link open call completed")
+                    
+                    // Set a timeout to fall back to simulation if Plaid Link doesn't appear
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                        if self.statusMessage == "Opening Plaid Link..." {
+                            print("⚠️ Plaid Link UI didn't appear after 5 seconds, falling back to simulation")
+                            self.statusMessage = "Plaid Link UI failed to load - using simulation"
+                            self.simulateSuccessfulFlow()
+                        }
+                    }
+                } catch {
+                    print("❌ Error in handler.open: \(error)")
+                    self.statusMessage = "Error presenting Plaid Link: \(error.localizedDescription)"
                 }
             }
         }
