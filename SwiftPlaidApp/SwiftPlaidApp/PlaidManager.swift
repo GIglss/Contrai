@@ -22,11 +22,11 @@ class PlaidManager: ObservableObject {
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        // request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        // Send empty JSON body to avoid malformed request
-        let emptyBody = Data("{}"   .utf8)
-        request.httpBody = emptyBody
+        // // Send empty JSON body to avoid malformed request
+        // let emptyBody = Data("{}"   .utf8)
+        // request.httpBody = emptyBody
         
         URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
             DispatchQueue.main.async {
