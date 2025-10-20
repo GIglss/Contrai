@@ -100,17 +100,22 @@ class PlaidManager: ObservableObject {
         let result = Plaid.create(linkConfiguration)
         switch result {
         case .failure(let error):
+            print("❌ Error creating Plaid Link: \(error.localizedDescription)")
             statusMessage = "Error creating Plaid Link: \(error.localizedDescription)"
         case .success(let handler):
+            print("✅ Plaid Link handler created successfully")
             // Present the actual Plaid Link UI
             DispatchQueue.main.async {
                 if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                    let window = windowScene.windows.first,
                    let rootViewController = window.rootViewController {
+                    print("🔄 Presenting Plaid Link UI...")
                     handler.open(presentUsing: .custom({ linkViewController in
+                        print("✅ Plaid Link UI ready to present")
                         rootViewController.present(linkViewController, animated: true)
                     }))
                 } else {
+                    print("❌ Could not find root view controller")
                     self.statusMessage = "Could not find root view controller to present Plaid Link"
                 }
             }
