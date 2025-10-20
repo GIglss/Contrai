@@ -93,9 +93,9 @@ class PlaidManager: ObservableObject {
                 if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                    let window = windowScene.windows.first,
                    let rootViewController = window.rootViewController {
-                    handler.open(presentUsing: rootViewController)
+                    handler.open(presentUsing: .viewController(rootViewController))
                 } else {
-                    self?.statusMessage = "Could not find root view controller to present Plaid Link"
+                    self.statusMessage = "Could not find root view controller to present Plaid Link"
                 }
             }
         }
