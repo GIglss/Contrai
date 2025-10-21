@@ -9,46 +9,11 @@ import UIKit
 import LinkKit
 
 class PlaidLinkViewController: UIViewController {
-    private let startLinkButton = UIButton(type: .system)
+    @IBOutlet var startLinkButton: UIButton!
     let communicator = ServerCommunicator()
     var linkToken: String?
     var handler: Handler?
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupViews()
-        setupConstraints()
-        setupUI()
-        self.startLinkButton.isEnabled = false
-        fetchLinkToken()
-    }
-    
-    private func setupViews() {
-        view.addSubview(startLinkButton)
-        startLinkButton.translatesAutoresizingMaskIntoConstraints = false
-    }
-    
-    private func setupConstraints() {
-        NSLayoutConstraint.activate([
-            startLinkButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            startLinkButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            startLinkButton.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 50),
-            startLinkButton.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -50),
-            startLinkButton.heightAnchor.constraint(equalToConstant: 50)
-        ])
-    }
-    
-    private func setupUI() {
-        view.backgroundColor = UIColor.systemBackground
-        
-        startLinkButton.setTitle("Connect Bank Account", for: .normal)
-        startLinkButton.backgroundColor = UIColor.systemBlue
-        startLinkButton.setTitleColor(.white, for: .normal)
-        startLinkButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
-        startLinkButton.layer.cornerRadius = 12
-        
-        startLinkButton.addTarget(self, action: #selector(startLinkWasPressed), for: .touchUpInside)
-    }
     
     private func createLinkConfiguration(linkToken: String) -> Any? {
         // Create our link configuration object
@@ -66,7 +31,7 @@ class PlaidLinkViewController: UIViewController {
                 return linkTokenConfig
     }
     
-    @objc private func startLinkWasPressed() {
+    @IBAction func startLinkWasPressed(_ sender: Any) {
         // Handle the button being clicked
         guard let linkToken = linkToken else { return }
         let config = createLinkConfiguration(linkToken: linkToken)
@@ -111,4 +76,22 @@ class PlaidLinkViewController: UIViewController {
         }
 
     }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.startLinkButton.isEnabled = false
+        fetchLinkToken()
+    }
+    
+
+    /*
+    // MARK: - Navigation
+
+    // In a storyboard-based application, you will often want to do a little preparation before navigation
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        // Get the new view controller using segue.destination.
+        // Pass the selected object to the new view controller.
+    }
+    */
+
 }
