@@ -15,6 +15,10 @@
 		31C7D5772A8EEAEF00605DD9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 31C7D5752A8EEAEF00605DD9 /* LaunchScreen.storyboard */; };
 		31C7D57F2A8FD37700605DD9 /* ServerCommunicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31C7D57E2A8FD37700605DD9 /* ServerCommunicator.swift */; };
 		31C7D5812A9013F200605DD9 /* PlaidLinkViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31C7D5802A9013F200605DD9 /* PlaidLinkViewController.swift */; };
+		3294F5C32EA9310100C1FE59 /* FlowsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3294F5C22EA9310100C1FE59 /* FlowsViewController.swift */; };
+		3294F5C62EA9312500C1FE59 /* SimpleRulesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3294F5C52EA9312500C1FE59 /* SimpleRulesViewController.swift */; };
+		3294F5C72EA9312500C1FE59 /* RulesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3294F5C42EA9312500C1FE59 /* RulesViewController.swift */; };
+		3294F5C92EA935F800C1FE59 /* RuleModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3294F5C82EA935F800C1FE59 /* RuleModels.swift */; };
 		32CDD46D2EA8D263001902DD /* LinkKit in Frameworks */ = {isa = PBXBuildFile; productRef = 32CDD46C2EA8D263001902DD /* LinkKit */; };
 		7CE0C7A72A9FEC7D003941EB /* ServerResponses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CE0C7A62A9FEC7D003941EB /* ServerResponses.swift */; };
 /* End PBXBuildFile section */
@@ -30,6 +34,10 @@
 		31C7D5782A8EEAEF00605DD9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		31C7D57E2A8FD37700605DD9 /* ServerCommunicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerCommunicator.swift; sourceTree = "<group>"; };
 		31C7D5802A9013F200605DD9 /* PlaidLinkViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaidLinkViewController.swift; sourceTree = "<group>"; };
+		3294F5C22EA9310100C1FE59 /* FlowsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowsViewController.swift; sourceTree = "<group>"; };
+		3294F5C42EA9312500C1FE59 /* RulesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RulesViewController.swift; sourceTree = "<group>"; };
+		3294F5C52EA9312500C1FE59 /* SimpleRulesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleRulesViewController.swift; sourceTree = "<group>"; };
+		3294F5C82EA935F800C1FE59 /* RuleModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuleModels.swift; sourceTree = "<group>"; };
 		7CE0C7A62A9FEC7D003941EB /* ServerResponses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerResponses.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -67,7 +75,11 @@
 				31C7D5802A9013F200605DD9 /* PlaidLinkViewController.swift */,
 				31C7D56A2A8EEAED00605DD9 /* AppDelegate.swift */,
 				31C7D56C2A8EEAED00605DD9 /* SceneDelegate.swift */,
+				3294F5C42EA9312500C1FE59 /* RulesViewController.swift */,
+				3294F5C52EA9312500C1FE59 /* SimpleRulesViewController.swift */,
+				3294F5C22EA9310100C1FE59 /* FlowsViewController.swift */,
 				31C7D56E2A8EEAED00605DD9 /* InitViewController.swift */,
+				3294F5C82EA935F800C1FE59 /* RuleModels.swift */,
 				31C7D57E2A8FD37700605DD9 /* ServerCommunicator.swift */,
 				7CE0C7A62A9FEC7D003941EB /* ServerResponses.swift */,
 				31C7D5702A8EEAED00605DD9 /* Main.storyboard */,
@@ -159,8 +171,12 @@
 				31C7D5812A9013F200605DD9 /* PlaidLinkViewController.swift in Sources */,
 				31C7D56B2A8EEAED00605DD9 /* AppDelegate.swift in Sources */,
 				31C7D56D2A8EEAED00605DD9 /* SceneDelegate.swift in Sources */,
+				3294F5C62EA9312500C1FE59 /* SimpleRulesViewController.swift in Sources */,
+				3294F5C72EA9312500C1FE59 /* RulesViewController.swift in Sources */,
 				7CE0C7A72A9FEC7D003941EB /* ServerResponses.swift in Sources */,
+				3294F5C92EA935F800C1FE59 /* RuleModels.swift in Sources */,
 				31C7D57F2A8FD37700605DD9 /* ServerCommunicator.swift in Sources */,
+				3294F5C32EA9310100C1FE59 /* FlowsViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
