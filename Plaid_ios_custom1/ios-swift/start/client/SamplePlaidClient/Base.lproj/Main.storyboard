@@ -56,8 +56,24 @@
                                     <action selector="makeSimpleCallWasPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="7jK-hb-DnU"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Get-Accounts-Button">
+                                <rect key="frame" x="115" y="450" width="163" height="35"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Get Accounts"/>
+                                <connections>
+                                    <action selector="getAccountsWasPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Get-Accounts-Action"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Get-Balance-Button">
+                                <rect key="frame" x="115" y="498" width="163" height="35"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Get Balance"/>
+                                <connections>
+                                    <action selector="getBalanceWasPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Get-Balance-Action"/>
+                                </connections>
+                            </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Results will go here" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="6" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aYD-4W-Rfh">
-                                <rect key="frame" x="123.33333333333333" y="474.33333333333331" width="146.33333333333337" height="20.333333333333314"/>
+                                <rect key="frame" x="123.33333333333333" y="550" width="146.33333333333337" height="20.333333333333314"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -79,12 +95,16 @@
                             <constraint firstItem="8gM-pB-UjJ" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="9dE-10-Yku"/>
                             <constraint firstItem="EQf-aJ-dCI" firstAttribute="width" relation="lessThanOrEqual" secondItem="8bC-Xf-vdC" secondAttribute="width" multiplier="0.9" id="Jkg-iS-W64"/>
                             <constraint firstItem="KNk-gZ-aKd" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="TVh-vo-I8b"/>
+                            <constraint firstItem="Get-Accounts-Button" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="Get-Accounts-CenterX"/>
+                            <constraint firstItem="Get-Balance-Button" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="Get-Balance-CenterX"/>
                             <constraint firstItem="aYD-4W-Rfh" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="bud-f6-6VG"/>
                             <constraint firstItem="8gM-pB-UjJ" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="29" id="hxY-mv-jvM"/>
                             <constraint firstItem="aYD-4W-Rfh" firstAttribute="width" relation="lessThanOrEqual" secondItem="8bC-Xf-vdC" secondAttribute="width" multiplier="0.9" id="lPy-fb-If5"/>
-                            <constraint firstItem="aYD-4W-Rfh" firstAttribute="top" secondItem="KNk-gZ-aKd" secondAttribute="bottom" constant="37" id="ptK-RH-oRO"/>
+                            <constraint firstItem="aYD-4W-Rfh" firstAttribute="top" secondItem="Get-Balance-Button" secondAttribute="bottom" constant="17" id="ptK-RH-oRO"/>
                             <constraint firstItem="1JQ-Ho-bac" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="taL-ib-8qb"/>
                             <constraint firstItem="KNk-gZ-aKd" firstAttribute="top" secondItem="1JQ-Ho-bac" secondAttribute="bottom" constant="27" id="tbV-hu-7PR"/>
+                            <constraint firstItem="Get-Accounts-Button" firstAttribute="top" secondItem="KNk-gZ-aKd" secondAttribute="bottom" constant="13" id="Get-Accounts-Top"/>
+                            <constraint firstItem="Get-Balance-Button" firstAttribute="top" secondItem="Get-Accounts-Button" secondAttribute="bottom" constant="13" id="Get-Balance-Top"/>
                             <constraint firstItem="EQf-aJ-dCI" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="xlO-Vd-7mb"/>
                         </constraints>
                     </view>
@@ -93,6 +113,8 @@
                     <connections>
                         <outlet property="connectToPlaid" destination="1JQ-Ho-bac" id="Cpl-aG-P9C"/>
                         <outlet property="simpleCallButton" destination="KNk-gZ-aKd" id="Y9M-PF-EMw"/>
+                        <outlet property="getAccountsButton" destination="Get-Accounts-Button" id="Get-Accounts-Outlet"/>
+                        <outlet property="getBalanceButton" destination="Get-Balance-Button" id="Get-Balance-Outlet"/>
                         <outlet property="simpleCallResults" destination="aYD-4W-Rfh" id="R5o-uj-DYN"/>
                         <outlet property="statusLabel" destination="EQf-aJ-dCI" id="f0h-aD-JIp"/>
                         <outlet property="userLabel" destination="8gM-pB-UjJ" id="UOA-kO-4pq"/>

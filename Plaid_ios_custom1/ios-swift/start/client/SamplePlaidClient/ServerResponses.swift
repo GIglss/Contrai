@@ -31,4 +31,32 @@ struct SimpleAuthResponse: Codable{
     let accountMask: String
     let routingNumber: String
 }
+
+// New response models for enhanced account data
+struct AccountBalance: Codable {
+    let available: Double?
+    let current: Double?
+    let limit: Double?
+    let iso_currency_code: String?
+}
+
+struct PlaidAccount: Codable {
+    let account_id: String
+    let name: String
+    let official_name: String?
+    let type: String
+    let subtype: String?
+    let mask: String?
+    let balances: AccountBalance?
+}
+
+struct AccountsResponse: Codable {
+    let accounts: [PlaidAccount]
+    let request_id: String
+}
+
+struct BalanceResponse: Codable {
+    let accounts: [PlaidAccount]
+    let request_id: String
+}
  

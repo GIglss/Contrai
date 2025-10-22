@@ -160,6 +160,62 @@ app.get("/server/simple_auth", async (req, res, next) => {
   }
 });
 
+/**
+ * Retrieve all accounts for the user - similar to Python get_accounts()
+ */
+app.get("/server/get_accounts", async (req, res, next) => {
+  try {
+    const currentUser = await getUserRecord();
+    const accessToken = currentUser[FIELD_ACCESS_TOKEN];
+    
+    // Use Plaid's accountsGet endpoint
+    const accountsResponse = await plaidClient.accountsGet({
+      access_token: accessToken,
+    });
+
+    console.dir(accountsResponse.data, { depth: null });
+    
+    // Return the full accounts data
+    res.json({
+      accounts: accountsResponse.data.accounts,
+      item: accountsResponse.data.item,
+      request_id: accountsResponse.data.request_id
+    });
+    return;
+    
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * Retrieve account balances for the user - similar to Python get_balance()
+ */
+app.get("/server/get_balance", async (req, res, next) => {
+  try {
+    const currentUser = await getUserRecord();
+    const accessToken = currentUser[FIELD_ACCESS_TOKEN];
+    
+    // Use Plaid's accountsBalanceGet endpoint
+    const balanceResponse = await plaidClient.accountsBalanceGet({
+      access_token: accessToken,
+    });
+
+    console.dir(balanceResponse.data, { depth: null });
+    
+    // Return the balance data
+    res.json({
+      accounts: balanceResponse.data.accounts,
+      item: balanceResponse.data.item,
+      request_id: balanceResponse.data.request_id
+    });
+    return;
+    
+  } catch (error) {
+    next(error);
+  }
+});
+
 const errorHandler = function (err, req, res, next) {
   console.error(`Your error:`);
   console.error(err);

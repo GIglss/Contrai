@@ -16,6 +16,8 @@ class InitViewController: UIViewController {
     
     @IBOutlet var connectToPlaid: UIButton!
     @IBOutlet var simpleCallButton: UIButton!
+    @IBOutlet var getAccountsButton: UIButton!
+    @IBOutlet var getBalanceButton: UIButton!
     let communicator = ServerCommunicator()
 
     @IBAction func makeSimpleCallWasPressed(_ sender: Any) {
@@ -26,6 +28,50 @@ class InitViewController: UIViewController {
                         self.simpleCallResults.text = "I retrieved routing number \(response.routingNumber) for \(response.accountName) (xxxxxxxxx\(response.accountMask))"
                     case .failure(let error):
                         print("Got an error \(error)")
+                    }
+                }
+    }
+    
+    @IBAction func getAccountsWasPressed(_ sender: Any) {
+        // Test our new get_accounts endpoint
+        self.communicator.callMyServer(path: "/server/get_accounts", httpMethod: .get) { (result: Result<AccountsResponse, ServerCommunicator.Error>) in
+                    switch result {
+                    case .success(let response):
+                        let accountCount = response.accounts.count
+                        let firstAccount = response.accounts.first
+                        self.simpleCallResults.text = "Found \(accountCount) accounts. First: \(firstAccount?.name ?? "Unknown") (\(firstAccount?.type ?? "Unknown"))"
+                        
+                        // Print detailed info to console for debugging
+                        print("=== ACCOUNTS RESPONSE ===")
+                        for account in response.accounts {
+                            print("Account: \(account.name) | Type: \(account.type) | Subtype: \(account.subtype ?? "N/A") | ID: \(account.account_id)")
+                        }
+                    case .failure(let error):
+                        print("Got an error fetching accounts: \(error)")
+                        self.simpleCallResults.text = "Error fetching accounts"
+                    }
+                }
+    }
+    
+    @IBAction func getBalanceWasPressed(_ sender: Any) {
+        // Test our new get_balance endpoint
+        self.communicator.callMyServer(path: "/server/get_balance", httpMethod: .get) { (result: Result<BalanceResponse, ServerCommunicator.Error>) in
+                    switch result {
+                    case .success(let response):
+                        let accountCount = response.accounts.count
+                        let totalBalance = response.accounts.compactMap { $0.balances?.current }.reduce(0, +)
+                        self.simpleCallResults.text = "Found \(accountCount) accounts with total balance: $\(String(format: "%.2f", totalBalance))"
+                        
+                        // Print detailed balance info to console for debugging
+                        print("=== BALANCE RESPONSE ===")
+                        for account in response.accounts {
+                            let current = account.balances?.current ?? 0
+                            let available = account.balances?.available ?? 0
+                            print("Account: \(account.name) | Current: $\(current) | Available: $\(available)")
+                        }
+                    case .failure(let error):
+                        print("Got an error fetching balances: \(error)")
+                        self.simpleCallResults.text = "Error fetching balances"
                     }
                 }
     }
@@ -41,11 +87,15 @@ class InitViewController: UIViewController {
                 case .connected:
                     self.statusLabel.text = "You are connected to your bank via Plaid. Make a call!"
                     self.connectToPlaid.setTitle("Make a new connection", for: .normal)
-                    self.simpleCallButton.isEnabled = true;
+                    self.simpleCallButton.isEnabled = true
+                    self.getAccountsButton.isEnabled = true
+                    self.getBalanceButton.isEnabled = true
                 case .disconnected:
                     self.statusLabel.text = "You should connect to a bank"
                     self.connectToPlaid.setTitle("Connect", for: .normal)
-                    self.simpleCallButton.isEnabled = false;
+                    self.simpleCallButton.isEnabled = false
+                    self.getAccountsButton.isEnabled = false
+                    self.getBalanceButton.isEnabled = false
                 }
                 self.connectToPlaid.isEnabled = true;
             case .failure(let error):
