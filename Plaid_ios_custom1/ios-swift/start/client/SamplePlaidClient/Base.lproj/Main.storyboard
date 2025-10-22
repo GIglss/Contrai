@@ -124,23 +124,15 @@
         <!--Rules-->
         <scene sceneID="Rules-Scene">
             <objects>
-                <viewController id="Rules-Controller" sceneMemberID="viewController">
+                <viewController id="Rules-Controller" customClass="RulesViewController" customModule="SamplePlaidClient" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Rules-View">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Basic Rules Test" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Test-Label">
-                                <rect key="frame" x="150" y="415" width="93" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Rules-Safe-Area"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="Test-Label" firstAttribute="centerX" secondItem="Rules-View" secondAttribute="centerX" id="Test-Label-CenterX"/>
-                            <constraint firstItem="Test-Label" firstAttribute="centerY" secondItem="Rules-View" secondAttribute="centerY" id="Test-Label-CenterY"/>
                         </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="Rules" image="list.bullet.rectangle" catalog="system" id="Rules-Tab-Item"/>
