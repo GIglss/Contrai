@@ -183,6 +183,8 @@ class InitViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        print("🏦 InitViewController (Accounts) loaded - console is working!")
+        
         // Set the title for the navigation bar
         self.title = "Accounts"
         
