@@ -121,7 +121,7 @@
             </objects>
             <point key="canvasLocation" x="130.53435114503816" y="-27.464788732394368"/>
         </scene>
-        <!--Rules-->
+        <!--Rules--> 
         <scene sceneID="Rules-Scene">
             <objects>
                 <viewController id="Rules-Controller" customClass="RulesViewController" customModule="SamplePlaidClient" customModuleProvider="target" sceneMemberID="viewController">
