@@ -124,7 +124,7 @@
         <!--Rules-->
         <scene sceneID="Rules-Scene">
             <objects>
-                <viewController id="Rules-Controller" sceneMemberID="viewController">
+                <viewController id="Rules-Controller" customClass="SimpleRulesViewController" customModule="SamplePlaidClient" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Rules-View">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
