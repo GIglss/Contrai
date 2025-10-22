@@ -15,6 +15,7 @@
 		31C7D5772A8EEAEF00605DD9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 31C7D5752A8EEAEF00605DD9 /* LaunchScreen.storyboard */; };
 		31C7D57F2A8FD37700605DD9 /* ServerCommunicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31C7D57E2A8FD37700605DD9 /* ServerCommunicator.swift */; };
 		31C7D5812A9013F200605DD9 /* PlaidLinkViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31C7D5802A9013F200605DD9 /* PlaidLinkViewController.swift */; };
+		32CDD46D2EA8D263001902DD /* LinkKit in Frameworks */ = {isa = PBXBuildFile; productRef = 32CDD46C2EA8D263001902DD /* LinkKit */; };
 		7CE0C7A72A9FEC7D003941EB /* ServerResponses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CE0C7A62A9FEC7D003941EB /* ServerResponses.swift */; };
 /* End PBXBuildFile section */
 
@@ -37,6 +38,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32CDD46D2EA8D263001902DD /* LinkKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -93,6 +95,7 @@
 			);
 			name = SamplePlaidClient;
 			packageProductDependencies = (
+				32CDD46C2EA8D263001902DD /* LinkKit */,
 			);
 			productName = SamplePlaidClient;
 			productReference = 31C7D5672A8EEAED00605DD9 /* SamplePlaidClient.app */;
@@ -106,7 +109,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1430;
-				LastUpgradeCheck = 1430;
+				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					31C7D5662A8EEAED00605DD9 = {
 						CreatedOnToolsVersion = 14.3.1;
@@ -123,6 +126,7 @@
 			);
 			mainGroup = 31C7D55E2A8EEAED00605DD9;
 			packageReferences = (
+				32CDD46B2EA8D263001902DD /* XCRemoteSwiftPackageReference "plaid-link-ios-spm" */,
 			);
 			productRefGroup = 31C7D5682A8EEAED00605DD9 /* Products */;
 			projectDirPath = "";
@@ -218,6 +222,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -237,6 +242,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -278,6 +284,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -290,6 +297,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				VALIDATE_PRODUCT = YES;
@@ -376,6 +384,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		32CDD46B2EA8D263001902DD /* XCRemoteSwiftPackageReference "plaid-link-ios-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/plaid/plaid-link-ios-spm.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.0.4;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		32CDD46C2EA8D263001902DD /* LinkKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 32CDD46B2EA8D263001902DD /* XCRemoteSwiftPackageReference "plaid-link-ios-spm" */;
+			productName = LinkKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 31C7D55F2A8EEAED00605DD9 /* Project object */;
 }

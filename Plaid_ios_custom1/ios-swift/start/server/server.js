@@ -119,8 +119,6 @@ app.post("/server/swap_public_token", async (req, res, next) => {
     res.json({ success: true });
     return;
     
-
-    res.json({ todo: "This endpoint has not yet been implemented" });
   } catch (error) {
     next(error);
   }
@@ -157,8 +155,6 @@ app.get("/server/simple_auth", async (req, res, next) => {
     res.json({ routingNumber, accountMask, accountName });
     return;
     
-
-    res.json({ todo: "This endpoint has not yet been implemented" });
   } catch (error) {
     next(error);
   }
