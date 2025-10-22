@@ -21,6 +21,9 @@ class RulesViewController: UIViewController {
         // Set the title for the navigation bar
         self.title = "Flow Rules"
         
+        // Add "+" button to navigation bar
+        setupNavigationBar()
+        
         // Setup table view
         setupTableView()
         
@@ -28,6 +31,71 @@ class RulesViewController: UIViewController {
         loadMockRules()
         
         print("✅ RulesViewController setup complete")
+    }
+    
+    private func setupNavigationBar() {
+        let addButton = UIBarButtonItem(
+            barButtonSystemItem: .add,
+            target: self,
+            action: #selector(addNewRule)
+        )
+        navigationItem.rightBarButtonItem = addButton
+    }
+    
+    @objc private func addNewRule() {
+        print("📝 Add new rule tapped")
+        
+        // For now, show a simple alert
+        let alert = UIAlertController(
+            title: "Create New Rule",
+            message: "Enter rule details:",
+            preferredStyle: .alert
+        )
+        
+        alert.addTextField { textField in
+            textField.placeholder = "Rule name"
+        }
+        
+        alert.addTextField { textField in
+            textField.placeholder = "Rule description"
+        }
+        
+        let createAction = UIAlertAction(title: "Create", style: .default) { [weak self] _ in
+            guard let nameField = alert.textFields?[0],
+                  let descField = alert.textFields?[1],
+                  let name = nameField.text, !name.isEmpty,
+                  let description = descField.text, !description.isEmpty else {
+                return
+            }
+            
+            self?.createNewRule(name: name, description: description)
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
+        
+        alert.addAction(createAction)
+        alert.addAction(cancelAction)
+        
+        present(alert, animated: true)
+    }
+    
+    private func createNewRule(name: String, description: String) {
+        let newRule = FlowRule(
+            id: UUID().uuidString,
+            name: name,
+            description: description,
+            isActive: true,
+            createdDate: DateFormatter.localizedString(from: Date(), dateStyle: .short, timeStyle: .none),
+            triggers: ["manual"],
+            actions: ["custom"]
+        )
+        
+        rules.append(newRule)
+        
+        let indexPath = IndexPath(row: rules.count - 1, section: 0)
+        rulesTableView.insertRows(at: [indexPath], with: .automatic)
+        
+        print("✅ Created new rule: \(name)")
     }
     
     private func setupTableView() {
