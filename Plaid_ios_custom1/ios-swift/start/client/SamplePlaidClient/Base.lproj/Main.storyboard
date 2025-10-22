@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="sK3-KI-JyF">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Tab-Bar-Controller">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21679"/>
@@ -8,7 +8,26 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Init View Controller-->
+        <!--Tab Bar Controller-->
+        <scene sceneID="Tab-Bar-Scene">
+            <objects>
+                <tabBarController id="Tab-Bar-Controller" sceneMemberID="viewController">
+                    <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="Tab-Bar">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="49"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    </tabBar>
+                    <connections>
+                        <segue destination="sK3-KI-JyF" kind="relationship" relationship="viewControllers" id="Accounts-Tab-Segue"/>
+                        <segue destination="Rules-Nav-Controller" kind="relationship" relationship="viewControllers" id="Rules-Tab-Segue"/>
+                        <segue destination="Flows-Nav-Controller" kind="relationship" relationship="viewControllers" id="Flows-Tab-Segue"/>
+                    </connections>
+                </tabBarController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Tab-Bar-First-Responder" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-800" y="300"/>
+        </scene>
+        <!--Accounts-->
         <scene sceneID="tne-QT-ifu">
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="InitViewController" customModule="SamplePlaidClient" customModuleProvider="target" sceneMemberID="viewController">
@@ -69,6 +88,7 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="yfX-dN-7Ap"/>
+                    <tabBarItem key="tabBarItem" title="Accounts" image="creditcard" catalog="system" id="Accounts-Tab-Item"/>
                     <connections>
                         <outlet property="connectToPlaid" destination="1JQ-Ho-bac" id="Cpl-aG-P9C"/>
                         <outlet property="simpleCallButton" destination="KNk-gZ-aKd" id="Y9M-PF-EMw"/>
@@ -91,6 +111,7 @@
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
+                    <tabBarItem key="tabBarItem" title="Accounts" image="creditcard" catalog="system" id="Accounts-Nav-Tab-Item"/>
                     <connections>
                         <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="t7P-5h-4s3"/>
                     </connections>
@@ -98,6 +119,108 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="z3h-Ly-aru" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="130.53435114503816" y="-27.464788732394368"/>
+        </scene>
+        <!--Rules-->
+        <scene sceneID="Rules-Scene">
+            <objects>
+                <viewController id="Rules-Controller" customClass="RulesViewController" customModule="SamplePlaidClient" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Rules-View">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Rules here" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Rules-Label">
+                                <rect key="frame" x="165" y="415.5" width="83" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="Rules-Safe-Area"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="Rules-Label" firstAttribute="centerX" secondItem="Rules-View" secondAttribute="centerX" id="Rules-Label-CenterX"/>
+                            <constraint firstItem="Rules-Label" firstAttribute="centerY" secondItem="Rules-View" secondAttribute="centerY" id="Rules-Label-CenterY"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="Rules-Nav-Item"/>
+                    <tabBarItem key="tabBarItem" title="Rules" image="list.bullet.rectangle" catalog="system" id="Rules-Tab-Item"/>
+                    <connections>
+                        <outlet property="rulesLabel" destination="Rules-Label" id="Rules-Label-Outlet"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Rules-First-Responder" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1054" y="700"/>
+        </scene>
+        <!--Rules Navigation Controller-->
+        <scene sceneID="Rules-Nav-Scene">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="Rules-Nav-Controller" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="Rules-Nav-Bar">
+                        <rect key="frame" x="0.0" y="59" width="393" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <tabBarItem key="tabBarItem" title="Rules" image="list.bullet.rectangle" catalog="system" id="Rules-Nav-Tab-Item"/>
+                    <connections>
+                        <segue destination="Rules-Controller" kind="relationship" relationship="rootViewController" id="Rules-Root-Segue"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Rules-Nav-First-Responder" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="130" y="700"/>
+        </scene>
+        <!--Flows-->
+        <scene sceneID="Flows-Scene">
+            <objects>
+                <viewController id="Flows-Controller" customClass="FlowsViewController" customModule="SamplePlaidClient" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Flows-View">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Flows here" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Flows-Label">
+                                <rect key="frame" x="163" y="415.5" width="87" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="Flows-Safe-Area"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="Flows-Label" firstAttribute="centerX" secondItem="Flows-View" secondAttribute="centerX" id="Flows-Label-CenterX"/>
+                            <constraint firstItem="Flows-Label" firstAttribute="centerY" secondItem="Flows-View" secondAttribute="centerY" id="Flows-Label-CenterY"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="Flows-Nav-Item"/>
+                    <tabBarItem key="tabBarItem" title="Flows" image="arrow.triangle.branch" catalog="system" id="Flows-Tab-Item"/>
+                    <connections>
+                        <outlet property="flowsLabel" destination="Flows-Label" id="Flows-Label-Outlet"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Flows-First-Responder" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1054" y="1400"/>
+        </scene>
+        <!--Flows Navigation Controller-->
+        <scene sceneID="Flows-Nav-Scene">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="Flows-Nav-Controller" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="Flows-Nav-Bar">
+                        <rect key="frame" x="0.0" y="59" width="393" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <tabBarItem key="tabBarItem" title="Flows" image="arrow.triangle.branch" catalog="system" id="Flows-Nav-Tab-Item"/>
+                    <connections>
+                        <segue destination="Flows-Controller" kind="relationship" relationship="rootViewController" id="Flows-Root-Segue"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Flows-Nav-First-Responder" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="130" y="1400"/>
         </scene>
         <!--Plaid Link View Controller-->
         <scene sceneID="wuE-UW-c2R">

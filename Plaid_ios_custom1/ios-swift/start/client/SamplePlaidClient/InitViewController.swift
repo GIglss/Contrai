@@ -62,5 +62,11 @@ class InitViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // Set the title for the navigation bar
+        self.title = "Accounts"
+        
+        // Set the tab bar item
+        self.tabBarItem = UITabBarItem(title: "Accounts", image: UIImage(systemName: "creditcard"), tag: 0)
     }
 }
