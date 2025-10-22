@@ -129,24 +129,34 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Rules here" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Rules-Label">
-                                <rect key="frame" x="157.66666666666666" y="415.66666666666669" width="78" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="Rules-TableView">
+                                <rect key="frame" x="20" y="118" width="353" height="651"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="RuleCell" textLabel="Rule-Cell-Title" detailTextLabel="Rule-Cell-Detail" style="IBUITableViewCellStyleSubtitle" id="Rule-Cell">
+                                        <rect key="frame" x="0.0" y="50" width="353" height="43.666667938232422"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Rule-Cell" id="Rule-Cell-ContentView">
+                                            <rect key="frame" x="0.0" y="0.0" width="353" height="43.666667938232422"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                </prototypes>
+                            </tableView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Rules-Safe-Area"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="Rules-Label" firstAttribute="centerX" secondItem="Rules-View" secondAttribute="centerX" id="Rules-Label-CenterX"/>
-                            <constraint firstItem="Rules-Label" firstAttribute="centerY" secondItem="Rules-View" secondAttribute="centerY" id="Rules-Label-CenterY"/>
+                            <constraint firstItem="Rules-TableView" firstAttribute="top" secondItem="Rules-Safe-Area" secondAttribute="top" id="TableView-Top"/>
+                            <constraint firstItem="Rules-TableView" firstAttribute="leading" secondItem="Rules-Safe-Area" secondAttribute="leading" constant="20" id="TableView-Leading"/>
+                            <constraint firstItem="Rules-Safe-Area" firstAttribute="trailing" secondItem="Rules-TableView" secondAttribute="trailing" constant="20" id="TableView-Trailing"/>
+                            <constraint firstItem="Rules-Safe-Area" firstAttribute="bottom" secondItem="Rules-TableView" secondAttribute="bottom" constant="49" id="TableView-Bottom"/>
                         </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="Rules" image="list.bullet.rectangle" catalog="system" id="Rules-Tab-Item"/>
                     <navigationItem key="navigationItem" id="Rules-Nav-Item"/>
                     <connections>
-                        <outlet property="rulesLabel" destination="Rules-Label" id="Rules-Label-Outlet"/>
+                        <outlet property="rulesTableView" destination="Rules-TableView" id="Rules-TableView-Outlet"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="VJL-vy-dL1" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
