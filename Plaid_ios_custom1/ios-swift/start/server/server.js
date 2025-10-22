@@ -61,7 +61,7 @@ app.get("/server/get_user_info", async (req, res, next) => {
 app.post("/server/generate_link_token", async (req, res, next) => {
   try {
     
-    // Part 1
+    // Part 1 
 
     const currentUser = await getUserRecord();
     const userId = currentUser[FIELD_USER_ID];
