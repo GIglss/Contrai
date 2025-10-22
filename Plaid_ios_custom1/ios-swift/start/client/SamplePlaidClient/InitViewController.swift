@@ -11,69 +11,140 @@ class InitViewController: UIViewController {
     
     @IBOutlet var userLabel: UILabel!
     @IBOutlet var statusLabel: UILabel!
-    @IBOutlet var simpleCallResults: UILabel!
-    
-    
     @IBOutlet var connectToPlaid: UIButton!
-    @IBOutlet var simpleCallButton: UIButton!
-    @IBOutlet var getAccountsButton: UIButton!
-    @IBOutlet var getBalanceButton: UIButton!
+    @IBOutlet var accountsStackView: UIStackView!
+    @IBOutlet var scrollView: UIScrollView!
+    
     let communicator = ServerCommunicator()
+    
+    private var accounts: [PlaidAccount] = []
 
-    @IBAction func makeSimpleCallWasPressed(_ sender: Any) {
-        // Ask our server to make a call to the Plaid API on behalf of our user
-        self.communicator.callMyServer(path: "/server/simple_auth", httpMethod: .get) { (result: Result<SimpleAuthResponse, ServerCommunicator.Error>) in
-                    switch result {
-                    case .success(let response):
-                        self.simpleCallResults.text = "I retrieved routing number \(response.routingNumber) for \(response.accountName) (xxxxxxxxx\(response.accountMask))"
-                    case .failure(let error):
-                        print("Got an error \(error)")
-                    }
-                }
-    }
-    
-    @IBAction func getAccountsWasPressed(_ sender: Any) {
-        // Test our new get_accounts endpoint
-        self.communicator.callMyServer(path: "/server/get_accounts", httpMethod: .get) { (result: Result<AccountsResponse, ServerCommunicator.Error>) in
-                    switch result {
-                    case .success(let response):
-                        let accountCount = response.accounts.count
-                        let firstAccount = response.accounts.first
-                        self.simpleCallResults.text = "Found \(accountCount) accounts. First: \(firstAccount?.name ?? "Unknown") (\(firstAccount?.type ?? "Unknown"))"
-                        
-                        // Print detailed info to console for debugging
-                        print("=== ACCOUNTS RESPONSE ===")
-                        for account in response.accounts {
-                            print("Account: \(account.name) | Type: \(account.type) | Subtype: \(account.subtype ?? "N/A") | ID: \(account.account_id)")
-                        }
-                    case .failure(let error):
-                        print("Got an error fetching accounts: \(error)")
-                        self.simpleCallResults.text = "Error fetching accounts"
-                    }
-                }
-    }
-    
-    @IBAction func getBalanceWasPressed(_ sender: Any) {
-        // Test our new get_balance endpoint
+    private func loadAccountsData() {
+        // Load account data with balances when user is connected
         self.communicator.callMyServer(path: "/server/get_balance", httpMethod: .get) { (result: Result<BalanceResponse, ServerCommunicator.Error>) in
-                    switch result {
-                    case .success(let response):
-                        let accountCount = response.accounts.count
-                        let totalBalance = response.accounts.compactMap { $0.balances?.current }.reduce(0, +)
-                        self.simpleCallResults.text = "Found \(accountCount) accounts with total balance: $\(String(format: "%.2f", totalBalance))"
-                        
-                        // Print detailed balance info to console for debugging
-                        print("=== BALANCE RESPONSE ===")
-                        for account in response.accounts {
-                            let current = account.balances?.current ?? 0
-                            let available = account.balances?.available ?? 0
-                            print("Account: \(account.name) | Current: $\(current) | Available: $\(available)")
-                        }
-                    case .failure(let error):
-                        print("Got an error fetching balances: \(error)")
-                        self.simpleCallResults.text = "Error fetching balances"
-                    }
-                }
+            switch result {
+            case .success(let response):
+                self.accounts = response.accounts
+                self.displayAccountCards()
+            case .failure(let error):
+                print("Error loading accounts: \(error)")
+                self.showErrorMessage("Failed to load accounts")
+            }
+        }
+    }
+    
+    private func displayAccountCards() {
+        // Clear existing cards
+        accountsStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        
+        // Create a card for each account
+        for account in accounts {
+            let accountCard = createAccountCard(for: account)
+            accountsStackView.addArrangedSubview(accountCard)
+        }
+        
+        // Show accounts container
+        scrollView.isHidden = false
+    }
+    
+    private func createAccountCard(for account: PlaidAccount) -> UIView {
+        let cardView = UIView()
+        cardView.backgroundColor = UIColor.systemBackground
+        cardView.layer.cornerRadius = 12
+        cardView.layer.shadowColor = UIColor.black.cgColor
+        cardView.layer.shadowOffset = CGSize(width: 0, height: 2)
+        cardView.layer.shadowRadius = 4
+        cardView.layer.shadowOpacity = 0.1
+        cardView.layer.borderWidth = 1
+        cardView.layer.borderColor = UIColor.systemGray5.cgColor
+        
+        // Account name label
+        let nameLabel = UILabel()
+        nameLabel.text = account.name
+        nameLabel.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+        nameLabel.textColor = UIColor.label
+        
+        // Account type label
+        let typeLabel = UILabel()
+        let accountType = "\(account.type.capitalized)"
+        let accountSubtype = account.subtype?.capitalized ?? ""
+        typeLabel.text = accountSubtype.isEmpty ? accountType : "\(accountType) • \(accountSubtype)"
+        typeLabel.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        typeLabel.textColor = UIColor.systemBlue
+        
+        // Account mask label
+        let maskLabel = UILabel()
+        maskLabel.text = "••••\(account.mask ?? "****")"
+        maskLabel.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+        maskLabel.textColor = UIColor.secondaryLabel
+        
+        // Balance label
+        let balanceLabel = UILabel()
+        if let balance = account.balances?.current {
+            let formatter = NumberFormatter()
+            formatter.numberStyle = .currency
+            formatter.currencyCode = account.balances?.iso_currency_code ?? "USD"
+            balanceLabel.text = formatter.string(from: NSNumber(value: balance)) ?? "$0.00"
+        } else {
+            balanceLabel.text = "Balance unavailable"
+        }
+        balanceLabel.font = UIFont.systemFont(ofSize: 20, weight: .bold)
+        balanceLabel.textColor = UIColor.label
+        balanceLabel.textAlignment = .right
+        
+        // Available balance (if different from current)
+        let availableLabel = UILabel()
+        if let available = account.balances?.available,
+           let current = account.balances?.current,
+           available != current {
+            let formatter = NumberFormatter()
+            formatter.numberStyle = .currency
+            formatter.currencyCode = account.balances?.iso_currency_code ?? "USD"
+            availableLabel.text = "Available: \(formatter.string(from: NSNumber(value: available)) ?? "$0.00")"
+            availableLabel.font = UIFont.systemFont(ofSize: 12, weight: .regular)
+            availableLabel.textColor = UIColor.secondaryLabel
+            availableLabel.textAlignment = .right
+        }
+        
+        // Setup auto layout
+        [nameLabel, typeLabel, maskLabel, balanceLabel, availableLabel].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            cardView.addSubview($0)
+        }
+        
+        NSLayoutConstraint.activate([
+            // Card height
+            cardView.heightAnchor.constraint(greaterThanOrEqualToConstant: 80),
+            
+            // Name label - top left
+            nameLabel.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 16),
+            nameLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 16),
+            nameLabel.trailingAnchor.constraint(lessThanOrEqualTo: balanceLabel.leadingAnchor, constant: -8),
+            
+            // Type label - below name
+            typeLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4),
+            typeLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 16),
+            
+            // Mask label - below type
+            maskLabel.topAnchor.constraint(equalTo: typeLabel.bottomAnchor, constant: 4),
+            maskLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 16),
+            maskLabel.bottomAnchor.constraint(equalTo: cardView.bottomAnchor, constant: -16),
+            
+            // Balance label - top right
+            balanceLabel.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 16),
+            balanceLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -16),
+            
+            // Available label - below balance (if visible)
+            availableLabel.topAnchor.constraint(equalTo: balanceLabel.bottomAnchor, constant: 4),
+            availableLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -16),
+        ])
+        
+        return cardView
+    }
+    
+    private func showErrorMessage(_ message: String) {
+        statusLabel.text = message
+        scrollView.isHidden = true
     }
     
     private func determineUserStatus() {
@@ -85,21 +156,20 @@ class InitViewController: UIViewController {
                 self.userLabel.text = "Hello user \(serverResponse.userId)!"
                 switch serverResponse.userStatus {
                 case .connected:
-                    self.statusLabel.text = "You are connected to your bank via Plaid. Make a call!"
-                    self.connectToPlaid.setTitle("Make a new connection", for: .normal)
-                    self.simpleCallButton.isEnabled = true
-                    self.getAccountsButton.isEnabled = true
-                    self.getBalanceButton.isEnabled = true
+                    self.statusLabel.text = "Your connected accounts:"
+                    self.connectToPlaid.setTitle("Add another bank", for: .normal)
+                    self.connectToPlaid.isEnabled = true
+                    // Load and display account cards
+                    self.loadAccountsData()
                 case .disconnected:
-                    self.statusLabel.text = "You should connect to a bank"
-                    self.connectToPlaid.setTitle("Connect", for: .normal)
-                    self.simpleCallButton.isEnabled = false
-                    self.getAccountsButton.isEnabled = false
-                    self.getBalanceButton.isEnabled = false
+                    self.statusLabel.text = "Connect your bank to get started"
+                    self.connectToPlaid.setTitle("Connect to bank", for: .normal)
+                    self.connectToPlaid.isEnabled = true
+                    self.scrollView.isHidden = true
                 }
-                self.connectToPlaid.isEnabled = true;
             case .failure(let error):
                 print(error)
+                self.showErrorMessage("Failed to load user status")
             }
         }
     }

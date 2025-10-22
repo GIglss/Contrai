@@ -48,40 +48,25 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KNk-gZ-aKd">
-                                <rect key="frame" x="115" y="402.33333333333331" width="163" height="35"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Make a simple call"/>
-                                <connections>
-                                    <action selector="makeSimpleCallWasPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="7jK-hb-DnU"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Get-Accounts-Button">
-                                <rect key="frame" x="115" y="450" width="163" height="35"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Get Accounts"/>
-                                <connections>
-                                    <action selector="getAccountsWasPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Get-Accounts-Action"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Get-Balance-Button">
-                                <rect key="frame" x="115" y="498" width="163" height="35"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Get Balance"/>
-                                <connections>
-                                    <action selector="getBalanceWasPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Get-Balance-Action"/>
-                                </connections>
-                            </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Results will go here" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="6" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aYD-4W-Rfh">
-                                <rect key="frame" x="123.33333333333333" y="550" width="146.33333333333337" height="20.333333333333314"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Accounts-ScrollView">
+                                <rect key="frame" x="20" y="395" width="353" height="374"/>
+                                <subviews>
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="Accounts-StackView">
+                                        <rect key="frame" x="0.0" y="0.0" width="353" height="0.0"/>
+                                    </stackView>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="Accounts-StackView" firstAttribute="leading" secondItem="Accounts-ScrollView" secondAttribute="leading" id="StackView-Leading"/>
+                                    <constraint firstItem="Accounts-StackView" firstAttribute="trailing" secondItem="Accounts-ScrollView" secondAttribute="trailing" id="StackView-Trailing"/>
+                                    <constraint firstItem="Accounts-StackView" firstAttribute="top" secondItem="Accounts-ScrollView" secondAttribute="top" id="StackView-Top"/>
+                                    <constraint firstItem="Accounts-StackView" firstAttribute="bottom" secondItem="Accounts-ScrollView" secondAttribute="bottom" id="StackView-Bottom"/>
+                                    <constraint firstItem="Accounts-StackView" firstAttribute="width" secondItem="Accounts-ScrollView" secondAttribute="width" id="StackView-Width"/>
+                                </constraints>
+                            </scrollView>
                             <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1JQ-Ho-bac">
                                 <rect key="frame" x="115.00000000000001" y="340.33333333333331" width="163.33333333333337" height="35"/>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Connect to a bank"/>
+                                <buttonConfiguration key="configuration" style="filled" title="Connect to bank"/>
                                 <connections>
                                     <segue destination="4Jb-lN-txq" kind="show" id="Sms-vp-GnO"/>
                                 </connections>
@@ -94,28 +79,21 @@
                             <constraint firstItem="EQf-aJ-dCI" firstAttribute="top" secondItem="8gM-pB-UjJ" secondAttribute="bottom" constant="65" id="98a-HO-zkM"/>
                             <constraint firstItem="8gM-pB-UjJ" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="9dE-10-Yku"/>
                             <constraint firstItem="EQf-aJ-dCI" firstAttribute="width" relation="lessThanOrEqual" secondItem="8bC-Xf-vdC" secondAttribute="width" multiplier="0.9" id="Jkg-iS-W64"/>
-                            <constraint firstItem="KNk-gZ-aKd" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="TVh-vo-I8b"/>
-                            <constraint firstItem="Get-Accounts-Button" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="Get-Accounts-CenterX"/>
-                            <constraint firstItem="Get-Balance-Button" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="Get-Balance-CenterX"/>
-                            <constraint firstItem="aYD-4W-Rfh" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="bud-f6-6VG"/>
                             <constraint firstItem="8gM-pB-UjJ" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="29" id="hxY-mv-jvM"/>
-                            <constraint firstItem="aYD-4W-Rfh" firstAttribute="width" relation="lessThanOrEqual" secondItem="8bC-Xf-vdC" secondAttribute="width" multiplier="0.9" id="lPy-fb-If5"/>
-                            <constraint firstItem="aYD-4W-Rfh" firstAttribute="top" secondItem="Get-Balance-Button" secondAttribute="bottom" constant="17" id="ptK-RH-oRO"/>
                             <constraint firstItem="1JQ-Ho-bac" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="taL-ib-8qb"/>
-                            <constraint firstItem="KNk-gZ-aKd" firstAttribute="top" secondItem="1JQ-Ho-bac" secondAttribute="bottom" constant="27" id="tbV-hu-7PR"/>
-                            <constraint firstItem="Get-Accounts-Button" firstAttribute="top" secondItem="KNk-gZ-aKd" secondAttribute="bottom" constant="13" id="Get-Accounts-Top"/>
-                            <constraint firstItem="Get-Balance-Button" firstAttribute="top" secondItem="Get-Accounts-Button" secondAttribute="bottom" constant="13" id="Get-Balance-Top"/>
                             <constraint firstItem="EQf-aJ-dCI" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="xlO-Vd-7mb"/>
+                            <constraint firstItem="Accounts-ScrollView" firstAttribute="top" secondItem="1JQ-Ho-bac" secondAttribute="bottom" constant="20" id="ScrollView-Top"/>
+                            <constraint firstItem="Accounts-ScrollView" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="ScrollView-Leading"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="Accounts-ScrollView" secondAttribute="trailing" constant="20" id="ScrollView-Trailing"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="Accounts-ScrollView" secondAttribute="bottom" constant="49" id="ScrollView-Bottom"/>
                         </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="Accounts" image="creditcard" catalog="system" id="Accounts-Tab-Item"/>
                     <navigationItem key="navigationItem" id="yfX-dN-7Ap"/>
                     <connections>
                         <outlet property="connectToPlaid" destination="1JQ-Ho-bac" id="Cpl-aG-P9C"/>
-                        <outlet property="simpleCallButton" destination="KNk-gZ-aKd" id="Y9M-PF-EMw"/>
-                        <outlet property="getAccountsButton" destination="Get-Accounts-Button" id="Get-Accounts-Outlet"/>
-                        <outlet property="getBalanceButton" destination="Get-Balance-Button" id="Get-Balance-Outlet"/>
-                        <outlet property="simpleCallResults" destination="aYD-4W-Rfh" id="R5o-uj-DYN"/>
+                        <outlet property="scrollView" destination="Accounts-ScrollView" id="ScrollView-Outlet"/>
+                        <outlet property="accountsStackView" destination="Accounts-StackView" id="StackView-Outlet"/>
                         <outlet property="statusLabel" destination="EQf-aJ-dCI" id="f0h-aD-JIp"/>
                         <outlet property="userLabel" destination="8gM-pB-UjJ" id="UOA-kO-4pq"/>
                     </connections>
@@ -167,11 +145,8 @@
                     </view>
                     <tabBarItem key="tabBarItem" title="Rules" image="list.bullet.rectangle" catalog="system" id="Rules-Tab-Item"/>
                     <navigationItem key="navigationItem" id="Rules-Nav-Item"/>
-                    <!--<connections>
-                        <outlet property="rulesLabel" destination="Rules-Label" id="Rules-Label-Outlet"/>
-                    </connections>-->
                 </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="Rules-First-Responder" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="VJL-vy-dL1" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1054" y="700"/>
         </scene>
@@ -218,11 +193,8 @@
                     </view>
                     <tabBarItem key="tabBarItem" title="Flows" image="shuffle" catalog="system" id="Flows-Tab-Item"/>
                     <navigationItem key="navigationItem" id="Flows-Nav-Item"/>
-                    <!--<connections>
-                        <outlet property="flowsLabel" destination="Flows-Label" id="Flows-Label-Outlet"/>
-                    </connections>-->
                 </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="Flows-First-Responder" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="WIL-5g-lUO" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1054" y="1400"/>
         </scene>
