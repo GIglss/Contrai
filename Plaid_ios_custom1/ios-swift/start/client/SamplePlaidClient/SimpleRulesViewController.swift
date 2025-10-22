@@ -8,5 +8,8 @@
 import UIKit
 
 class SimpleRulesViewController: UIViewController {
-    // Completely empty - just inherits from UIViewController
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        print("📱 SimpleRulesViewController loaded successfully!")
+    }
 }
