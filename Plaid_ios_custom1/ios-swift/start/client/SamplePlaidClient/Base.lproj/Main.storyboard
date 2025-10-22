@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Tab-Bar-Controller">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24128" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Tab-Bar-Controller">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21679"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24063"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -87,8 +88,8 @@
                             <constraint firstItem="EQf-aJ-dCI" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="xlO-Vd-7mb"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="yfX-dN-7Ap"/>
                     <tabBarItem key="tabBarItem" title="Accounts" image="creditcard" catalog="system" id="Accounts-Tab-Item"/>
+                    <navigationItem key="navigationItem" id="yfX-dN-7Ap"/>
                     <connections>
                         <outlet property="connectToPlaid" destination="1JQ-Ho-bac" id="Cpl-aG-P9C"/>
                         <outlet property="simpleCallButton" destination="KNk-gZ-aKd" id="Y9M-PF-EMw"/>
@@ -101,17 +102,17 @@
             </objects>
             <point key="canvasLocation" x="1054.1984732824426" y="-27.464788732394368"/>
         </scene>
-        <!--Navigation Controller-->
+        <!--Accounts-->
         <scene sceneID="ruU-In-1EI">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="sK3-KI-JyF" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Accounts" image="creditcard" catalog="system" id="Accounts-Nav-Tab-Item"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="zZX-4e-RES">
-                        <rect key="frame" x="0.0" y="59" width="393" height="44"/>
+                        <rect key="frame" x="0.0" y="118" width="393" height="54"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
-                    <tabBarItem key="tabBarItem" title="Accounts" image="creditcard" catalog="system" id="Accounts-Nav-Tab-Item"/>
                     <connections>
                         <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="t7P-5h-4s3"/>
                     </connections>
@@ -142,8 +143,8 @@
                             <constraint firstItem="Rules-Label" firstAttribute="centerY" secondItem="Rules-View" secondAttribute="centerY" id="Rules-Label-CenterY"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="Rules-Nav-Item"/>
                     <tabBarItem key="tabBarItem" title="Rules" image="list.bullet.rectangle" catalog="system" id="Rules-Tab-Item"/>
+                    <navigationItem key="navigationItem" id="Rules-Nav-Item"/>
                     <connections>
                         <outlet property="rulesLabel" destination="Rules-Label" id="Rules-Label-Outlet"/>
                     </connections>
@@ -152,17 +153,16 @@
             </objects>
             <point key="canvasLocation" x="1054" y="700"/>
         </scene>
-        <!--Rules Navigation Controller-->
+        <!--Rules-->
         <scene sceneID="Rules-Nav-Scene">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="Rules-Nav-Controller" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Rules" image="list.bullet.rectangle" catalog="system" id="Rules-Nav-Tab-Item"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="Rules-Nav-Bar">
-                        <rect key="frame" x="0.0" y="59" width="393" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
-                    <tabBarItem key="tabBarItem" title="Rules" image="list.bullet.rectangle" catalog="system" id="Rules-Nav-Tab-Item"/>
                     <connections>
                         <segue destination="Rules-Controller" kind="relationship" relationship="rootViewController" id="Rules-Root-Segue"/>
                     </connections>
@@ -193,8 +193,8 @@
                             <constraint firstItem="Flows-Label" firstAttribute="centerY" secondItem="Flows-View" secondAttribute="centerY" id="Flows-Label-CenterY"/>
                         </constraints>
                     </view>
+                    <tabBarItem key="tabBarItem" title="Flows" image="shuffle" catalog="system" id="Flows-Tab-Item"/>
                     <navigationItem key="navigationItem" id="Flows-Nav-Item"/>
-                    <tabBarItem key="tabBarItem" title="Flows" image="arrow.triangle.branch" catalog="system" id="Flows-Tab-Item"/>
                     <connections>
                         <outlet property="flowsLabel" destination="Flows-Label" id="Flows-Label-Outlet"/>
                     </connections>
@@ -203,17 +203,17 @@
             </objects>
             <point key="canvasLocation" x="1054" y="1400"/>
         </scene>
-        <!--Flows Navigation Controller-->
+        <!--Flows-->
         <scene sceneID="Flows-Nav-Scene">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="Flows-Nav-Controller" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Flows" image="shuffle" catalog="system" id="Flows-Nav-Tab-Item"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="Flows-Nav-Bar">
-                        <rect key="frame" x="0.0" y="59" width="393" height="44"/>
+                        <rect key="frame" x="0.0" y="118" width="393" height="54"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
-                    <tabBarItem key="tabBarItem" title="Flows" image="arrow.triangle.branch" catalog="system" id="Flows-Nav-Tab-Item"/>
                     <connections>
                         <segue destination="Flows-Controller" kind="relationship" relationship="rootViewController" id="Flows-Root-Segue"/>
                     </connections>
@@ -257,6 +257,9 @@
         </scene>
     </scenes>
     <resources>
+        <image name="shuffle" catalog="system" width="128" height="114"/>
+        <image name="creditcard" catalog="system" width="128" height="88"/>
+        <image name="list.bullet.rectangle" catalog="system" width="128" height="93"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
