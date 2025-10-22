@@ -8,8 +8,8 @@
 import UIKit
 
 class RulesViewController: UIViewController {
-    
-    @IBOutlet weak var rulesLabel: UILabel!
+     
+    //@IBOutlet weak var rulesLabel: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()

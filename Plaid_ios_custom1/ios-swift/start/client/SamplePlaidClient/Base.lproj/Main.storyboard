@@ -37,19 +37,19 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Hello, user!" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8gM-pB-UjJ">
-                                <rect key="frame" x="153.66666666666666" y="132" width="86" height="21"/>
+                                <rect key="frame" x="153.66666666666666" y="201" width="86" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Determining your status..." textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EQf-aJ-dCI">
-                                <rect key="frame" x="98.333333333333329" y="218" width="196.33333333333337" height="20.333333333333343"/>
+                                <rect key="frame" x="98.333333333333329" y="287" width="196.33333333333337" height="20.333333333333314"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KNk-gZ-aKd">
-                                <rect key="frame" x="115" y="333.33333333333331" width="163" height="35"/>
+                                <rect key="frame" x="115" y="402.33333333333331" width="163" height="35"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Make a simple call"/>
                                 <connections>
@@ -57,13 +57,13 @@
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Results will go here" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="6" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aYD-4W-Rfh">
-                                <rect key="frame" x="123.33333333333333" y="405.33333333333331" width="146.33333333333337" height="20.333333333333314"/>
+                                <rect key="frame" x="123.33333333333333" y="474.33333333333331" width="146.33333333333337" height="20.333333333333314"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1JQ-Ho-bac">
-                                <rect key="frame" x="115.00000000000001" y="271.33333333333331" width="163.33333333333337" height="35"/>
+                                <rect key="frame" x="115.00000000000001" y="340.33333333333331" width="163.33333333333337" height="35"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Connect to a bank"/>
                                 <connections>
@@ -130,7 +130,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Rules here" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Rules-Label">
-                                <rect key="frame" x="165" y="415.5" width="83" height="21"/>
+                                <rect key="frame" x="156.33333333333334" y="415.66666666666669" width="80.333333333333343" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -145,9 +145,9 @@
                     </view>
                     <tabBarItem key="tabBarItem" title="Rules" image="list.bullet.rectangle" catalog="system" id="Rules-Tab-Item"/>
                     <navigationItem key="navigationItem" id="Rules-Nav-Item"/>
-                    <connections>
+                    <!--<connections>
                         <outlet property="rulesLabel" destination="Rules-Label" id="Rules-Label-Outlet"/>
-                    </connections>
+                    </connections>-->
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Rules-First-Responder" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -160,6 +160,7 @@
                     <tabBarItem key="tabBarItem" title="Rules" image="list.bullet.rectangle" catalog="system" id="Rules-Nav-Tab-Item"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="Rules-Nav-Bar">
+                        <rect key="frame" x="0.0" y="118" width="393" height="54"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
@@ -180,7 +181,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Flows here" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Flows-Label">
-                                <rect key="frame" x="163" y="415.5" width="87" height="21"/>
+                                <rect key="frame" x="155.66666666666666" y="415.66666666666669" width="82" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -195,9 +196,9 @@
                     </view>
                     <tabBarItem key="tabBarItem" title="Flows" image="shuffle" catalog="system" id="Flows-Tab-Item"/>
                     <navigationItem key="navigationItem" id="Flows-Nav-Item"/>
-                    <connections>
+                    <!--<connections>
                         <outlet property="flowsLabel" destination="Flows-Label" id="Flows-Label-Outlet"/>
-                    </connections>
+                    </connections>-->
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Flows-First-Responder" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -231,7 +232,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oeo-PV-tl2">
-                                <rect key="frame" x="148" y="443" width="97" height="35"/>
+                                <rect key="frame" x="148" y="436" width="97" height="35"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Start Link"/>
                                 <connections>
@@ -257,9 +258,9 @@
         </scene>
     </scenes>
     <resources>
-        <image name="shuffle" catalog="system" width="128" height="114"/>
         <image name="creditcard" catalog="system" width="128" height="88"/>
         <image name="list.bullet.rectangle" catalog="system" width="128" height="93"/>
+        <image name="shuffle" catalog="system" width="128" height="95"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
