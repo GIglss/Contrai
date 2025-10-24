@@ -858,6 +858,71 @@ def get_all_connected_accounts():
         return jsonify({'error': str(e), 'accounts': []})
 
 
+@app.route('/api/rules', methods=['GET'])
+def get_rules():
+    try:
+        rules_file_path = os.path.join(os.path.dirname(__file__), 'rules.json')
+        
+        if not os.path.exists(rules_file_path):
+            return jsonify({'rules': [], 'error': None})
+        
+        with open(rules_file_path, 'r') as f:
+            rules_data = json.load(f)
+        
+        return jsonify({'rules': rules_data.get('rules', []), 'error': None})
+    except Exception as e:
+        print(f"Error in get_rules: {e}")
+        return jsonify({'error': str(e), 'rules': []})
+
+@app.route('/api/rules', methods=['POST'])
+def create_rule():
+    try:
+        rule_data = request.get_json()
+        
+        # Validate required fields
+        required_fields = ['name', 'fromAccount', 'toAccount', 'transferType', 'frequency']
+        for field in required_fields:
+            if field not in rule_data:
+                return jsonify({'error': f'Missing required field: {field}'}), 400
+        
+        # Generate a unique ID for the rule
+        rule_id = str(uuid.uuid4())
+        
+        new_rule = {
+            'id': rule_id,
+            'name': rule_data['name'],
+            'description': rule_data.get('description', ''),
+            'fromAccount': rule_data['fromAccount'],
+            'toAccount': rule_data['toAccount'],
+            'transferType': rule_data['transferType'],
+            'amount': rule_data.get('amount', None),
+            'percentage': rule_data.get('percentage', None),
+            'frequency': rule_data['frequency'],
+            'isActive': rule_data.get('isActive', True),
+            'createdAt': dt.datetime.now().isoformat(),
+            'lastExecuted': None
+        }
+        
+        # Load existing rules if file exists
+        rules_file_path = os.path.join(os.path.dirname(__file__), 'rules.json')
+        try:
+            with open(rules_file_path, 'r') as f:
+                rules_data = json.load(f)
+        except Exception:
+            rules_data = {'rules': []}
+        
+        # Add new rule
+        rules_data['rules'].append(new_rule)
+        
+        # Write back to file
+        with open(rules_file_path, 'w') as f:
+            json.dump(rules_data, f, indent=2)
+        
+        return jsonify({'rule': new_rule, 'error': None})
+    except Exception as e:
+        print(f"Error in create_rule: {e}")
+        return jsonify({'error': str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(port=int(os.getenv('PORT', 8000)))
