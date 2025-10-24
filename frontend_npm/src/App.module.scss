@@ -13,4 +13,10 @@ $threads-font-path: "~plaid-threads/fonts";
   min-width: 70 * $unit;
   max-width: 120 * $unit;
   margin: 0 auto;
+  padding-bottom: 100px; // Add space for bottom navigation
+}
+
+.content {
+  // width: 100%;
+  flex: 1;
 }

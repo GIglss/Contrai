@@ -1,9 +1,10 @@
-import React, { useEffect, useContext, useCallback } from "react";
+import React, { useEffect, useContext, useCallback, useState } from "react";
 
 import Header from "./Components/Headers";
-import Products from "./Components/ProductTypes/Products";
-import Items from "./Components/ProductTypes/Items";
 import AccountsConnected from "./Components/AccountsConnected";
+import Rules from "./Components/Rules";
+import Flows from "./Components/Flows";
+import BottomNavigation from "./Components/BottomNavigation";
 import Context from "./Context";
 
 import styles from "./App.module.scss";
@@ -12,6 +13,7 @@ import { CraCheckReportProduct } from "plaid";
 const App = () => {
   const { linkSuccess, isPaymentInitiation, itemId, dispatch } =
     useContext(Context);
+  const [activeTab, setActiveTab] = useState<'accounts' | 'rules' | 'flows'>('accounts');
 
   const getInfo = useCallback(async () => {
     const response = await fetch("/api/info", { method: "POST" });
@@ -120,19 +122,33 @@ const App = () => {
     init();
   }, [dispatch, generateToken, generateUserToken, getInfo]);
 
+  const renderCurrentPage = () => {
+    switch (activeTab) {
+      case 'accounts':
+        return <AccountsConnected />;
+      case 'rules':
+        return <Rules />;
+      case 'flows':
+        return <Flows />;
+      default:
+        return <AccountsConnected />;
+    }
+  };
+
   return (
     <div className={styles.App}>
       <div className={styles.container}>
         <Header />
-        {/* <HeaderConnected /> */}
         {linkSuccess && (
-          // <>
-          //   <Products />
-          //   {!isPaymentInitiation && itemId && <Items />}
-          // </>
-          // Alternatively, you can render the AccountsConnected component
-          <AccountsConnected />
-          
+          <>
+            <div className={styles.content}>
+              {renderCurrentPage()}
+            </div>
+            <BottomNavigation 
+              activeTab={activeTab} 
+              onTabChange={setActiveTab} 
+            />
+          </>
         )}
       </div>
     </div>
