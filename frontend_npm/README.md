@@ -45,7 +45,7 @@ python server.py
 
 The backend should be running and accessible for the frontend to communicate with it.
 
-## Deploying to iOS with Capacitor
+> **Note:** Some steps, such as installing dependencies with `npm install` and setting up CocoaPods, must be performed directly on your Mac computer. This is because the `node_modules` directory is not shared via git and must be generated locally on each machine. Make sure to run these commands on your Mac to ensure all native dependencies are correctly installed for iOS development.
 
 ### 1. Install Capacitor
 ```bash
@@ -79,6 +79,11 @@ npx cap copy
 ```bash
 npx cap open ios
 ```
+
+**Important**: If you encounter CocoaPods errors, you may need to:
+1. Navigate to `ios/App` directory
+2. Run `pod install`
+3. Open the `.xcworkspace` file (not `.xcodeproj`)
 
 ### 7. Build and Deploy from Xcode
 - From Xcode, you can:
@@ -178,6 +183,50 @@ frontend_npm/
 1. **Port already in use**: Change the port by setting the `PORT` environment variable
 2. **Build errors**: Check that all dependencies are installed with `npm install`
 3. **Capacitor issues**: Ensure you've run `npm run build` before `npx cap copy`
+
+### iOS-Specific Issues
+
+#### CocoaPods Configuration Error
+**Error**: `Unable to open base configuration reference file '...Pods-App.debug.xcconfig'`
+
+**Solution**:
+1. **Navigate to the iOS directory:**
+   ```bash
+   cd ios/App
+   ```
+
+2. **Install CocoaPods (if not installed):**
+   ```bash
+   sudo gem install cocoapods
+   ```
+
+3. **Install Pod dependencies:**
+   ```bash
+   pod install
+   ```
+
+4. **If pod install fails, try:**
+   ```bash
+   pod deintegrate
+   pod install
+   ```
+
+5. **Alternative: Update and reinstall:**
+   ```bash
+   pod repo update
+   pod install
+   ```
+
+6. **After successful pod install, open the workspace (not the project):**
+   ```bash
+   open App.xcworkspace
+   ```
+   **Important**: Always open `.xcworkspace` file, not `.xcodeproj` when using CocoaPods
+
+#### Other iOS Issues
+- **Xcode version compatibility**: Ensure you're using a compatible Xcode version
+- **iOS Simulator issues**: Try resetting the simulator: `Device` → `Erase All Content and Settings`
+- **Clean derived data**: In Xcode: `Window` → `Organizer` → `Projects` → Select your project → `Delete Derived Data`
 
 ### Development Tips
 - The app uses TypeScript, so type errors will be shown in the terminal and browser

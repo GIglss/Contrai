@@ -3,6 +3,7 @@ import React, { useEffect, useContext, useCallback } from "react";
 import Header from "./Components/Headers";
 import Products from "./Components/ProductTypes/Products";
 import Items from "./Components/ProductTypes/Items";
+import AccountsConnected from "./Components/AccountsConnected";
 import Context from "./Context";
 
 import styles from "./App.module.scss";
@@ -123,11 +124,15 @@ const App = () => {
     <div className={styles.App}>
       <div className={styles.container}>
         <Header />
+        {/* <HeaderConnected /> */}
         {linkSuccess && (
-          <>
-            <Products />
-            {!isPaymentInitiation && itemId && <Items />}
-          </>
+          // <>
+          //   <Products />
+          //   {!isPaymentInitiation && itemId && <Items />}
+          // </>
+          // Alternatively, you can render the AccountsConnected component
+          <AccountsConnected />
+          
         )}
       </div>
     </div>

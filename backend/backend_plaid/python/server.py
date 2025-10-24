@@ -222,7 +222,7 @@ def create_link_token():
                     "client_user_id": str(time.time()),
                 },
                 "client_name": "Personal Finance App",
-                "products": ["auth"],  # or whatever you're enabled for
+                "products": ["auth","transactions"],  # or whatever you're enabled for
                 "country_codes": ["US"],
                 "language": "en",
             }
@@ -306,6 +306,50 @@ def get_access_token():
         exchange_response = client.item_public_token_exchange(exchange_request)
         access_token = exchange_response['access_token']
         item_id = exchange_response['item_id']
+        # Get bank name and account name from item and institution
+        try:
+            # Get item info first
+            item_request = ItemGetRequest(access_token=access_token)
+            item_response = client.item_get(item_request)
+            institution_id = item_response['item']['institution_id']
+            
+            # Get institution info
+            institution_request = InstitutionsGetByIdRequest(
+                institution_id=institution_id,
+                country_codes=list(map(lambda x: CountryCode(x), PLAID_COUNTRY_CODES))
+            )
+            institution_response = client.institutions_get_by_id(institution_request)
+            bank_name = institution_response['institution']['name']
+            
+            # Get account info
+            accounts_request = AccountsGetRequest(access_token=access_token)
+            accounts_response = client.accounts_get(accounts_request)
+            account_name = accounts_response['accounts'][0]['name'] if accounts_response['accounts'] else "Unknown Account"
+            
+        except Exception as e:
+            print(f"Error getting institution/account info: {e}")
+            bank_name = "Unknown Bank"
+            account_name = "Unknown Account"
+
+        # Load existing tokens if file exists
+        tokens_file_path = os.path.join(os.path.dirname(__file__), 'tokens.json')
+        try:
+            with open(tokens_file_path, 'r') as f:
+                tokens = json.load(f)
+        except Exception:
+            tokens = {}
+
+        # Add or update the entry for this item_id
+        tokens[item_id] = {
+            'access_token': access_token,
+            'bank_name': bank_name,
+            'account_name': account_name
+        }
+
+        # Write back the updated tokens dictionary
+        with open(tokens_file_path, 'w') as f:
+            json.dump(tokens, f, indent=2)
+
         return jsonify(exchange_response.to_dict())
     except plaid.ApiException as e:
         return json.loads(e.body)
@@ -651,7 +695,6 @@ def payment():
 # Retrieve high-level information about an Item
 # https://plaid.com/docs/#retrieve-item
 
-
 @app.route('/api/item', methods=['GET'])
 def item():
     try:
@@ -756,6 +799,65 @@ def format_error(e):
     response = json.loads(e.body)
     return {'error': {'status_code': e.status, 'display_message':
                       response['error_message'], 'error_code': response['error_code'], 'error_type': response['error_type']}}
+
+
+### ONCE CONNECTED ###
+
+
+@app.route('/api/get_all_accounts', methods=['GET'])
+def get_all_accounts():
+    try:
+        time.sleep(1)
+        # Read tokens from tokens.json
+        tokens_file_path = os.path.join(os.path.dirname(__file__), 'tokens.json')
+        
+        if not os.path.exists(tokens_file_path):
+            return jsonify({'error': 'No tokens file found', 'accounts': []})
+        
+        with open(tokens_file_path, 'r') as f:
+            tokens_data = json.load(f)
+        
+        all_accounts = []
+        print(f"🗂️ Processing... get all accounts")
+        for item_id, token_info in tokens_data.items():
+            print(f"🗂️ Processing item_id: {item_id}")
+            access_token_for_item = token_info.get('access_token')
+            bank_name = token_info.get('bank_name', 'Unknown Bank')
+            
+            if access_token_for_item:
+                try:
+                    # Get accounts for this access token
+                    request = AccountsGetRequest(access_token=access_token_for_item)
+                    response = client.accounts_get(request)
+                    print("🔍 Accounts response:", response)
+                    for account in response['accounts']:
+                        print(f"🗂️ Processing account: {account}")
+                        balances = account.get('balances', {})
+                        # Prefer 'available' if present, else fallback to 'current'
+                        balance = balances.get('available')
+                        if balance is None:
+                            balance = balances.get('current')
+                        all_accounts.append({
+                            'account_id': account.get('account_id'),
+                            'name': account.get('name'),
+                            'bank_name': bank_name,
+                            'account_type': str(account.get('type')) if account.get('type') is not None else None,
+                            'subtype': str(account.get('subtype')) if account.get('subtype') is not None else None,
+                            'balance': balance,
+                            'currency': balances.get('iso_currency_code'),
+                            'mask': account.get('mask', '****')
+                        })
+                        
+                except plaid.ApiException as e:
+                    print(f"Error getting accounts for token {access_token_for_item}: {e}")
+                    continue
+        
+        return jsonify({'accounts': all_accounts, 'error': None})
+    except Exception as e:
+        print(f"Error in get_all_accounts: {e}")
+        return jsonify({'error': str(e), 'accounts': []})
+
+
 
 if __name__ == '__main__':
     app.run(port=int(os.getenv('PORT', 8000)))
