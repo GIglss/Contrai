@@ -803,9 +803,9 @@ def format_error(e):
 
 ### ONCE CONNECTED ###
 
-
-@app.route('/api/get_all_accounts', methods=['GET'])
-def get_all_accounts():
+#TODO the api is being called before the tokens.json is populated with the new item_id, hence only see n-1 accounts
+@app.route('/api/get_all_connected_accounts', methods=['GET'])
+def get_all_connected_accounts():
     try:
         time.sleep(1)
         # Read tokens from tokens.json
@@ -820,7 +820,7 @@ def get_all_accounts():
         all_accounts = []
         print(f"🗂️ Processing... get all accounts")
         for item_id, token_info in tokens_data.items():
-            print(f"🗂️ Processing item_id: {item_id}")
+            
             access_token_for_item = token_info.get('access_token')
             bank_name = token_info.get('bank_name', 'Unknown Bank')
             
@@ -829,9 +829,9 @@ def get_all_accounts():
                     # Get accounts for this access token
                     request = AccountsGetRequest(access_token=access_token_for_item)
                     response = client.accounts_get(request)
-                    print("🔍 Accounts response:", response)
+                    
                     for account in response['accounts']:
-                        print(f"🗂️ Processing account: {account}")
+                        
                         balances = account.get('balances', {})
                         # Prefer 'available' if present, else fallback to 'current'
                         balance = balances.get('available')

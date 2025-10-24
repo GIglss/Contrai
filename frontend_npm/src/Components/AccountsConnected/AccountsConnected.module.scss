@@ -4,6 +4,13 @@
   margin: 0 auto;
 }
 
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
 .title {
   color: #2c3e50;
   font-size: 2rem;
@@ -14,7 +21,27 @@
 .subtitle {
   color: #6c757d;
   font-size: 1rem;
-  margin-bottom: 2rem;
+  margin: 0;
+}
+
+.refreshButton {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: #0056b3;
+  }
+
+  &:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+  }
 }
 
 .loading, .error, .noAccounts {

@@ -16,28 +16,42 @@ const AccountsConnected = () => {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchAccounts = async (isRefresh = false) => {
+    if (isRefresh) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
+    
+    try {
+      // Add a small delay to ensure token has been saved
+      if (!isRefresh) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+      
+      const response = await fetch("/api/get_all_connected_accounts");
+      if (!response.ok) {
+        throw new Error("Failed to fetch accounts");
+      }
+      const data = await response.json();
+      
+      if (data.error) {
+        setError(data.error);
+      } else {
+        setAccounts(data.accounts || []);
+        setError(null);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchAccounts = async () => {
-      try {
-        const response = await fetch("/api/get_all_accounts");
-        if (!response.ok) {
-          throw new Error("Failed to fetch accounts");
-        }
-        const data = await response.json();
-        
-        if (data.error) {
-          setError(data.error);
-        } else {
-          setAccounts(data.accounts || []);
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchAccounts();
   }, []);
 
@@ -67,8 +81,19 @@ const AccountsConnected = () => {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Accounts</h1>
-      <p className={styles.subtitle}>Connect your bank accounts</p>
+      <div className={styles.header}>
+        <div>
+          <h1 className={styles.title}>Accounts</h1>
+          <p className={styles.subtitle}>Connect your bank accounts</p>
+        </div>
+        <button 
+          className={styles.refreshButton} 
+          onClick={() => fetchAccounts(true)}
+          disabled={refreshing}
+        >
+          {refreshing ? "Refreshing..." : "Refresh"}
+        </button>
+      </div>
       
       {accounts.length === 0 ? (
         <div className={styles.noAccounts}>No accounts connected</div>
