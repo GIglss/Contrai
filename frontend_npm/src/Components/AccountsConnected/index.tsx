@@ -18,16 +18,19 @@ const AccountsConnected = () => {
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
-  const fetchAccounts = async (isRefresh = false) => {
+  const fetchAccounts = async (isRefresh = false, retryCount = 0) => {
+    const maxRetries = 3;
+    const retryDelay = 1500; // 1.5 seconds between retries
+
     if (isRefresh) {
       setRefreshing(true);
-    } else {
+    } else if (retryCount === 0) {
       setLoading(true);
     }
     
     try {
       // Add a small delay to ensure token has been saved
-      if (!isRefresh) {
+      if (!isRefresh && retryCount === 0) {
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
       
@@ -39,13 +42,36 @@ const AccountsConnected = () => {
       
       if (data.error) {
         setError(data.error);
+        setLoading(false);
+        setRefreshing(false);
       } else {
-        setAccounts(data.accounts || []);
+        const fetchedAccounts = data.accounts || [];
+        
+        // If no accounts found and this is the initial load (not a refresh), retry
+        if (fetchedAccounts.length === 0 && !isRefresh && retryCount < maxRetries) {
+          console.log(`No accounts found, retrying... (attempt ${retryCount + 1}/${maxRetries})`);
+          setTimeout(() => {
+            fetchAccounts(false, retryCount + 1);
+          }, retryDelay);
+          return; // Don't set loading to false yet
+        }
+        
+        setAccounts(fetchedAccounts);
         setError(null);
+        setLoading(false);
+        setRefreshing(false);
       }
     } catch (err) {
+      // If error occurred and we haven't exhausted retries, try again
+      if (!isRefresh && retryCount < maxRetries) {
+        console.log(`Error fetching accounts, retrying... (attempt ${retryCount + 1}/${maxRetries})`);
+        setTimeout(() => {
+          fetchAccounts(false, retryCount + 1);
+        }, retryDelay);
+        return; // Don't set loading to false yet
+      }
+      
       setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
       setLoading(false);
       setRefreshing(false);
     }
