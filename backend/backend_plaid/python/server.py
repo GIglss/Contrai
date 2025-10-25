@@ -923,6 +923,48 @@ def create_rule():
         print(f"Error in create_rule: {e}")
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/rules/<rule_id>', methods=['PUT'])
+def update_rule(rule_id):
+    try:
+        rule_data = request.get_json()
+        
+        # Load existing rules
+        rules_file_path = os.path.join(os.path.dirname(__file__), 'rules.json')
+        try:
+            with open(rules_file_path, 'r') as f:
+                rules_data = json.load(f)
+        except Exception:
+            return jsonify({'error': 'Rules file not found'}), 404
+        
+        # Find the rule to update
+        rule_index = None
+        for i, rule in enumerate(rules_data['rules']):
+            if rule['id'] == rule_id:
+                rule_index = i
+                break
+        
+        if rule_index is None:
+            return jsonify({'error': 'Rule not found'}), 404
+        
+        # Update the rule
+        if 'isActive' in rule_data:
+            rules_data['rules'][rule_index]['isActive'] = rule_data['isActive']
+        
+        # Update other fields if provided
+        updatable_fields = ['name', 'description', 'fromAccount', 'toAccount', 'transferType', 'amount', 'percentage', 'frequency']
+        for field in updatable_fields:
+            if field in rule_data:
+                rules_data['rules'][rule_index][field] = rule_data[field]
+        
+        # Write back to file
+        with open(rules_file_path, 'w') as f:
+            json.dump(rules_data, f, indent=2)
+        
+        return jsonify({'rule': rules_data['rules'][rule_index], 'error': None})
+    except Exception as e:
+        print(f"Error in update_rule: {e}")
+        return jsonify({'error': str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(port=int(os.getenv('PORT', 8000)))

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import CreateRule from './CreateRule';
+import EditRule from './EditRule';
 import styles from './Rules.module.scss';
 
 interface Rule {
@@ -9,8 +10,8 @@ interface Rule {
   fromAccount: string;
   toAccount: string;
   transferType: 'percentage' | 'amount';
-  percentage?: number;
-  amount?: number;
+  percentage?: number | string;
+  amount?: number | string;
   frequency: string;
   isActive: boolean;
   createdAt: string;
@@ -28,6 +29,7 @@ const Rules: React.FC = () => {
   const [rules, setRules] = useState<Rule[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingRule, setEditingRule] = useState<Rule | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,7 +42,7 @@ const Rules: React.FC = () => {
     try {
       const response = await fetch('/api/rules');
       const data = await response.json();
-      
+      console.log(data);
       if (data.error) {
         throw new Error(data.error);
       }
@@ -76,9 +78,11 @@ const Rules: React.FC = () => {
 
   const formatAmount = (rule: Rule) => {
     if (rule.transferType === 'percentage') {
-      return `${rule.percentage}%`;
+      const percentage = typeof rule.percentage === 'string' ? Number.parseFloat(rule.percentage) : rule.percentage;
+      return `${percentage || 0}%`;
     } else {
-      return `$${rule.amount?.toFixed(2) || '0.00'}`;
+      const amount = typeof rule.amount === 'string' ? Number.parseFloat(rule.amount) : rule.amount;
+      return `$${(amount || 0).toFixed(2)}`;
     }
   };
 
@@ -91,8 +95,63 @@ const Rules: React.FC = () => {
     fetchRules(); // Refresh the rules list
   };
 
+  const handleRuleUpdated = () => {
+    setEditingRule(null);
+    fetchRules(); // Refresh the rules list
+  };
+
+  const handleRuleCardClick = (rule: Rule, event: React.MouseEvent) => {
+    // Don't open edit if clicking on the status button
+    if ((event.target as HTMLElement).closest('button')) {
+      return;
+    }
+    setEditingRule(rule);
+  };
+
+  const toggleRuleStatus = async (ruleId: string, currentStatus: boolean) => {
+    try {
+      const response = await fetch(`/api/rules/${ruleId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          isActive: !currentStatus
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      // Update the local state
+      setRules(prevRules => 
+        prevRules.map(rule => 
+          rule.id === ruleId 
+            ? { ...rule, isActive: !currentStatus }
+            : rule
+        )
+      );
+    } catch (err) {
+      console.error('Error toggling rule status:', err);
+      setError(err instanceof Error ? err.message : 'Failed to update rule status');
+    }
+  };
+
   if (showCreateForm) {
     return <CreateRule />;
+  }
+
+  if (editingRule) {
+    return (
+      <EditRule 
+        rule={editingRule} 
+        onBack={() => setEditingRule(null)} 
+        onSuccess={handleRuleUpdated} 
+      />
+    );
   }
 
   return (
@@ -131,12 +190,20 @@ const Rules: React.FC = () => {
       ) : (
         <div className={styles.rulesList}>
           {rules.map(rule => (
-            <div key={rule.id} className={`${styles.ruleCard} ${!rule.isActive ? styles.inactive : ''}`}>
+            <div 
+              key={rule.id} 
+              className={`${styles.ruleCard} ${!rule.isActive ? styles.inactive : ''}`}
+              onClick={(e) => handleRuleCardClick(rule, e)}
+            >
               <div className={styles.ruleHeader}>
                 <h3>{rule.name}</h3>
-                <div className={`${styles.status} ${rule.isActive ? styles.active : styles.inactive}`}>
+                <button
+                  className={`${styles.status} ${rule.isActive ? styles.active : styles.inactive}`}
+                  onClick={() => toggleRuleStatus(rule.id, rule.isActive)}
+                  title={`Click to ${rule.isActive ? 'deactivate' : 'activate'} this rule`}
+                >
                   {rule.isActive ? 'Active' : 'Inactive'}
-                </div>
+                </button>
               </div>
               
               {rule.description && (
