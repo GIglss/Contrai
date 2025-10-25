@@ -4,6 +4,7 @@ import styles from './CreateRule.module.scss';
 interface Account {
   account_id: string;
   name: string;
+  custom_name?: string;
   type: string;
   subtype: string;
 }
@@ -160,7 +161,7 @@ const CreateRule: React.FC = () => {
               <option value="">Select source account</option>
               {accounts.map(account => (
                 <option key={account.account_id} value={account.account_id}>
-                  {account.name} ({account.type})
+                  {account.custom_name || account.name} ({account.type})
                 </option>
               ))}
             </select>
@@ -178,7 +179,7 @@ const CreateRule: React.FC = () => {
               <option value="">Select destination account</option>
               {accounts.map(account => (
                 <option key={account.account_id} value={account.account_id}>
-                  {account.name} ({account.type})
+                  {account.custom_name || account.name} ({account.type})
                 </option>
               ))}
             </select>

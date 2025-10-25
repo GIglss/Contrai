@@ -840,6 +840,7 @@ def get_all_connected_accounts():
                         all_accounts.append({
                             'account_id': account.get('account_id'),
                             'name': account.get('name'),
+                            'custom_name': token_info.get('custom_name', None),  # Add custom name
                             'bank_name': bank_name,
                             'account_type': str(account.get('type')) if account.get('type') is not None else None,
                             'subtype': str(account.get('subtype')) if account.get('subtype') is not None else None,
@@ -856,6 +857,64 @@ def get_all_connected_accounts():
     except Exception as e:
         print(f"Error in get_all_accounts: {e}")
         return jsonify({'error': str(e), 'accounts': []})
+
+
+@app.route('/api/accounts/<account_id>/custom_name', methods=['PUT'])
+def update_account_custom_name(account_id):
+    try:
+        request_data = request.get_json()
+        custom_name = request_data.get('custom_name', '').strip()
+        
+        # Read tokens from tokens.json
+        tokens_file_path = os.path.join(os.path.dirname(__file__), 'tokens.json')
+        
+        if not os.path.exists(tokens_file_path):
+            return jsonify({'error': 'No tokens file found'}), 404
+        
+        with open(tokens_file_path, 'r') as f:
+            tokens_data = json.load(f)
+        
+        # Find the account by iterating through all access tokens
+        updated = False
+        for item_id, token_info in tokens_data.items():
+            access_token_for_item = token_info.get('access_token')
+            
+            if access_token_for_item:
+                try:
+                    # Get accounts for this access token
+                    request_obj = AccountsGetRequest(access_token=access_token_for_item)
+                    response = client.accounts_get(request_obj)
+                    
+                    for account in response['accounts']:
+                        if account.get('account_id') == account_id:
+                            # Update the custom name for this item
+                            if custom_name:
+                                tokens_data[item_id]['custom_name'] = custom_name
+                            else:
+                                # Remove custom name if empty
+                                tokens_data[item_id].pop('custom_name', None)
+                            updated = True
+                            break
+                    
+                    if updated:
+                        break
+                        
+                except plaid.ApiException as e:
+                    print(f"Error getting accounts for token {access_token_for_item}: {e}")
+                    continue
+        
+        if not updated:
+            return jsonify({'error': 'Account not found'}), 404
+        
+        # Write back to file
+        with open(tokens_file_path, 'w') as f:
+            json.dump(tokens_data, f, indent=2)
+        
+        return jsonify({'success': True, 'custom_name': custom_name})
+        
+    except Exception as e:
+        print(f"Error updating account custom name: {e}")
+        return jsonify({'error': str(e)}), 500
 
 
 @app.route('/api/rules', methods=['GET'])

@@ -21,6 +21,7 @@ interface Rule {
 interface Account {
   account_id: string;
   name: string;
+  custom_name?: string;
   type: string;
   subtype: string;
 }
@@ -73,7 +74,10 @@ const Rules: React.FC = () => {
 
   const getAccountName = (accountId: string) => {
     const account = accounts.find(acc => acc.account_id === accountId);
-    return account ? `${account.name} (${account.type})` : accountId;
+    if (!account) return accountId;
+    
+    const displayName = account.custom_name || account.name;
+    return `${displayName} (${account.type})`;
   };
 
   const formatAmount = (rule: Rule) => {

@@ -4,6 +4,7 @@ import styles from "./AccountsConnected.module.scss";
 interface Account {
   account_id: string;
   name: string;
+  custom_name?: string;
   bank_name: string;
   account_type: string;
   subtype: string;
@@ -17,6 +18,8 @@ const AccountsConnected = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [editingAccount, setEditingAccount] = useState<string | null>(null);
+  const [customName, setCustomName] = useState("");
 
   const fetchAccounts = async (isRefresh = false, retryCount = 0) => {
     const maxRetries = 3;
@@ -89,6 +92,50 @@ const AccountsConnected = () => {
     }).format(amount);
   };
 
+  const startEditing = (accountId: string, currentCustomName?: string) => {
+    setEditingAccount(accountId);
+    setCustomName(currentCustomName || "");
+  };
+
+  const cancelEditing = () => {
+    setEditingAccount(null);
+    setCustomName("");
+  };
+
+  const saveCustomName = async (accountId: string) => {
+    try {
+      const response = await fetch(`/api/accounts/${accountId}/custom_name`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ custom_name: customName }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update custom name');
+      }
+
+      // Update local state
+      setAccounts(prevAccounts =>
+        prevAccounts.map(account =>
+          account.account_id === accountId
+            ? { ...account, custom_name: customName || undefined }
+            : account
+        )
+      );
+
+      setEditingAccount(null);
+      setCustomName("");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update account name');
+    }
+  };
+
+  const getDisplayName = (account: Account) => {
+    return account.custom_name || account.name;
+  };
+
   if (loading) {
     return (
       <div className={styles.container}>
@@ -131,7 +178,49 @@ const AccountsConnected = () => {
                 <div className={styles.bankIcon}>🏦</div>
               </div>
               <div className={styles.accountInfo}>
-                <h3 className={styles.accountName}>{account.name}</h3>
+                {editingAccount === account.account_id ? (
+                  <div className={styles.editingContainer}>
+                    <input
+                      type="text"
+                      value={customName}
+                      onChange={(e) => setCustomName(e.target.value)}
+                      placeholder={account.name}
+                      className={styles.customNameInput}
+                      maxLength={50}
+                      autoFocus
+                    />
+                    <div className={styles.editActions}>
+                      <button
+                        onClick={() => saveCustomName(account.account_id)}
+                        className={styles.saveBtn}
+                      >
+                        ✓
+                      </button>
+                      <button
+                        onClick={cancelEditing}
+                        className={styles.cancelBtn}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className={styles.nameContainer}>
+                    <h3 className={styles.accountName}>
+                      {getDisplayName(account)}
+                      {account.custom_name && (
+                        <span className={styles.originalName}>({account.name})</span>
+                      )}
+                    </h3>
+                    <button
+                      onClick={() => startEditing(account.account_id, account.custom_name)}
+                      className={styles.editBtn}
+                      title="Edit account name"
+                    >
+                      ✏️
+                    </button>
+                  </div>
+                )}
                 <p className={styles.bankName}>{account.bank_name}</p>
               </div>
               <div className={styles.accountBalance}>
