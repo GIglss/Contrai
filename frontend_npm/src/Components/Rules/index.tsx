@@ -77,7 +77,7 @@ const Rules: React.FC = () => {
     if (!account) return accountId;
     
     const displayName = account.custom_name || account.name;
-    return `${displayName} (${account.type})`;
+    return `${displayName}`;
   };
 
   const formatAmount = (rule: Rule) => {
