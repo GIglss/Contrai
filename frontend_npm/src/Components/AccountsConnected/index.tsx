@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { usePlaidLink } from "react-plaid-link";
 import styles from "./AccountsConnected.module.scss";
 
 interface Account {
@@ -20,6 +21,57 @@ const AccountsConnected = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [editingAccount, setEditingAccount] = useState<string | null>(null);
   const [customName, setCustomName] = useState("");
+  const [linkToken, setLinkToken] = useState("");
+  const [isConnecting, setIsConnecting] = useState(false);
+
+  // Plaid Link functions
+  const generateToken = useCallback(async () => {
+    setIsConnecting(true);
+    try {
+      const response = await fetch("/api/create_link_token", { method: "POST" });
+      const data = await response.json();
+      setLinkToken(data.link_token);
+    } catch (error) {
+      console.error("Error generating token:", error);
+      setError("Failed to generate connection token");
+    } finally {
+      setIsConnecting(false);
+    }
+  }, []);
+
+  const onSuccess = useCallback(async (public_token: string) => {
+    try {
+      await fetch("/api/set_access_token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ public_token }),
+      });
+      
+      // Refresh accounts after successful connection
+      await fetchAccounts(true);
+    } catch (error) {
+      console.error("Error setting access token:", error);
+      setError("Failed to connect account");
+    }
+  }, []);
+
+  const config = {
+    token: linkToken,
+    onSuccess,
+    onExit: () => setIsConnecting(false),
+    onEvent: () => {},
+  };
+
+  const { open, ready } = usePlaidLink(config);
+
+  const handleConnectAccount = async () => {
+    if (!linkToken) {
+      await generateToken();
+    }
+    if (ready) {
+      open();
+    }
+  };
 
   const fetchAccounts = async (isRefresh = false, retryCount = 0) => {
     const maxRetries = 3;
@@ -82,7 +134,8 @@ const AccountsConnected = () => {
 
   useEffect(() => {
     fetchAccounts();
-  }, []);
+    generateToken();
+  }, [generateToken]);
 
   const formatCurrency = (amount: number, currency: string) => {
     if (amount == null) return "N/A";
@@ -159,13 +212,22 @@ const AccountsConnected = () => {
           <h1 className={styles.title}>Accounts</h1>
           <p className={styles.subtitle}>Connect your bank accounts</p>
         </div>
-        <button 
-          className={styles.refreshButton} 
-          onClick={() => fetchAccounts(true)}
-          disabled={refreshing}
-        >
-          {refreshing ? "Refreshing..." : "Refresh"}
-        </button>
+        <div className={styles.headerButtons}>
+          <button 
+            className={styles.connectButton} 
+            onClick={handleConnectAccount}
+            disabled={isConnecting || !ready}
+          >
+            {isConnecting ? "Connecting..." : "Connect Account"}
+          </button>
+          <button 
+            className={styles.refreshButton} 
+            onClick={() => fetchAccounts(true)}
+            disabled={refreshing}
+          >
+            {refreshing ? "Refreshing..." : "Refresh"}
+          </button>
+        </div>
       </div>
       
       {accounts.length === 0 ? (

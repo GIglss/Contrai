@@ -138,18 +138,13 @@ const App = () => {
   return (
     <div className={styles.App}>
       <div className={styles.container}>
-        <Header />
-        {linkSuccess && (
-          <>
-            <div className={styles.content}>
-              {renderCurrentPage()}
-            </div>
-            <BottomNavigation 
-              activeTab={activeTab} 
-              onTabChange={setActiveTab} 
-            />
-          </>
-        )}
+        <div className={styles.content}>
+          {renderCurrentPage()}
+        </div>
+        <BottomNavigation 
+          activeTab={activeTab} 
+          onTabChange={setActiveTab} 
+        />
       </div>
     </div>
   );

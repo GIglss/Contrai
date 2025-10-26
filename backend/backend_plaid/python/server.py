@@ -299,7 +299,12 @@ def get_access_token():
     global access_token
     global item_id
     global transfer_id
-    public_token = request.form['public_token']
+    
+    # Handle both JSON and form data
+    if request.is_json:
+        public_token = request.get_json()['public_token']
+    else:
+        public_token = request.form['public_token']
     try:
         exchange_request = ItemPublicTokenExchangeRequest(
             public_token=public_token)
