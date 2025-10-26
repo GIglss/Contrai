@@ -2,8 +2,8 @@ import React from "react";
 import styles from "./BottomNavigation.module.scss";
 
 interface BottomNavigationProps {
-  activeTab: 'accounts' | 'rules' | 'flows';
-  onTabChange: (tab: 'accounts' | 'rules' | 'flows') => void;
+  activeTab: 'accounts' | 'rules' | 'flows' | 'chat';
+  onTabChange: (tab: 'accounts' | 'rules' | 'flows' | 'chat') => void;
 }
 
 const BottomNavigation: React.FC<BottomNavigationProps> = ({ activeTab, onTabChange }) => {
@@ -31,6 +31,14 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ activeTab, onTabCha
       >
         <div className={styles.icon}>📊</div>
         <span className={styles.label}>Flows</span>
+      </button>
+      
+      <button 
+        className={`${styles.navItem} ${activeTab === 'chat' ? styles.active : ''}`}
+        onClick={() => onTabChange('chat')}
+      >
+        <div className={styles.icon}>💬</div>
+        <span className={styles.label}>Chat</span>
       </button>
     </div>
   );

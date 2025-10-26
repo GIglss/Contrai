@@ -4,6 +4,7 @@ import Header from "./Components/Headers";
 import AccountsConnected from "./Components/AccountsConnected";
 import Rules from "./Components/Rules";
 import Flows from "./Components/Flows";
+import Chat from "./Components/Chat";
 import BottomNavigation from "./Components/BottomNavigation";
 import Context from "./Context";
 
@@ -13,7 +14,7 @@ import { CraCheckReportProduct } from "plaid";
 const App = () => {
   const { linkSuccess, isPaymentInitiation, itemId, dispatch } =
     useContext(Context);
-  const [activeTab, setActiveTab] = useState<'accounts' | 'rules' | 'flows'>('accounts');
+  const [activeTab, setActiveTab] = useState<'accounts' | 'rules' | 'flows' | 'chat'>('accounts');
 
   const getInfo = useCallback(async () => {
     const response = await fetch("/api/info", { method: "POST" });
@@ -130,6 +131,8 @@ const App = () => {
         return <Rules />;
       case 'flows':
         return <Flows />;
+      case 'chat':
+        return <Chat />;
       default:
         return <AccountsConnected />;
     }

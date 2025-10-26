@@ -9,6 +9,7 @@ import uuid
 
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
+from openai import AzureOpenAI
 import plaid
 from plaid.model.payment_amount import PaymentAmount
 from plaid.model.payment_amount_currency import PaymentAmountCurrency
@@ -72,6 +73,11 @@ PLAID_SECRET = os.getenv('PLAID_SECRET')
 PLAID_ENV = os.getenv('PLAID_ENV', 'sandbox')
 PLAID_PRODUCTS = os.getenv('PLAID_PRODUCTS', 'transactions').split(',')
 PLAID_COUNTRY_CODES = os.getenv('PLAID_COUNTRY_CODES', 'US').split(',')
+
+MODEL_TYPE = os.getenv('MODEL_TYPE')
+API_KEY = os.getenv('API_KEY')
+API_VERSION = os.getenv('API_VERSION')
+AZURE_ENDPOINT = os.getenv('AZURE_ENDPOINT')
 
 def empty_to_none(field):
     value = os.getenv(field)
@@ -1029,6 +1035,272 @@ def update_rule(rule_id):
         print(f"Error in update_rule: {e}")
         return jsonify({'error': str(e)}), 500
 
+### LLM FINANCIAL ASSISTANT ###
+
+def get_financial_context():
+    """Get current user's financial context for LLM"""
+    try:
+        context = {}
+        
+        # Get accounts data
+        tokens_file_path = os.path.join(os.path.dirname(__file__), 'tokens.json')
+        if os.path.exists(tokens_file_path):
+            with open(tokens_file_path, 'r') as f:
+                tokens_data = json.load(f)
+            
+            accounts = []
+            for item_id, token_info in tokens_data.items():
+                access_token_for_item = token_info.get('access_token')
+                bank_name = token_info.get('bank_name', 'Unknown Bank')
+                custom_name = token_info.get('custom_name')
+                
+                if access_token_for_item:
+                    try:
+                        request_obj = AccountsGetRequest(access_token=access_token_for_item)
+                        response = client.accounts_get(request_obj)
+                        
+                        for account in response['accounts']:
+                            balances = account.get('balances', {})
+                            balance = balances.get('available') or balances.get('current')
+                            
+                            accounts.append({
+                                'name': custom_name or account.get('name'),
+                                'bank': bank_name,
+                                'type': str(account.get('type')),
+                                'subtype': str(account.get('subtype')),
+                                'balance': balance,
+                                'currency': balances.get('iso_currency_code', 'USD')
+                            })
+                    except Exception as e:
+                        print(f"Error getting account data for context: {e}")
+                        continue
+            
+            context['accounts'] = accounts
+        
+        # Get rules data
+        rules_file_path = os.path.join(os.path.dirname(__file__), 'rules.json')
+        if os.path.exists(rules_file_path):
+            with open(rules_file_path, 'r') as f:
+                rules_data = json.load(f)
+            
+            rules = []
+            for rule in rules_data.get('rules', []):
+                rules.append({
+                    'name': rule.get('name'),
+                    'description': rule.get('description'),
+                    'from_account': rule.get('fromAccount'),
+                    'to_account': rule.get('toAccount'),
+                    'transfer_type': rule.get('transferType'),
+                    'amount': rule.get('amount'),
+                    'percentage': rule.get('percentage'),
+                    'frequency': rule.get('frequency'),
+                    'is_active': rule.get('isActive', False)
+                })
+            
+            context['rules'] = rules
+        
+        return context
+    except Exception as e:
+        print(f"Error getting financial context: {e}")
+        return {}
+
+@app.route('/api/chat-test', methods=['POST'])
+def chat_test():
+    """
+    Simple chat test endpoint to verify LLM connectivity
+    Expected payload:
+    {
+        "message": "Test message"
+    }
+    """
+    try:
+        data = request.get_json()
+        
+        if not data or 'message' not in data:
+            return jsonify({'error': 'Message is required'}), 400
+        
+        user_message = data['message']
+        
+        # Validate Azure OpenAI configuration
+        if not all([API_KEY, API_VERSION, AZURE_ENDPOINT, MODEL_TYPE]):
+            return jsonify({
+                'error': 'Azure OpenAI configuration incomplete',
+                'missing_config': {
+                    'API_KEY': bool(API_KEY),
+                    'API_VERSION': bool(API_VERSION),
+                    'AZURE_ENDPOINT': bool(AZURE_ENDPOINT),
+                    'MODEL_TYPE': bool(MODEL_TYPE)
+                }
+            }), 500
+        
+        # Simple test call to Azure OpenAI
+        try:
+            chat_model = AzureOpenAI(
+                azure_endpoint=AZURE_ENDPOINT,
+                api_key=API_KEY,
+                api_version=API_VERSION
+            )
+            
+            # Simple test messages
+            messages = [
+                {"role": "system", "content": "You are a helpful assistant. Respond in Spanish. Keep responses short and friendly."},
+                {"role": "user", "content": user_message}
+            ]
+            
+            chat = chat_model.chat.completions.create(
+                model=MODEL_TYPE,
+                messages=messages,
+                temperature=0.3,
+                max_tokens=150,
+                n=1,
+            )
+            
+            response_content = chat.choices[0].message.content
+            
+            return jsonify({
+                'response': response_content,
+                'status': 'success',
+                'test_mode': True,
+                'timestamp': dt.datetime.now().isoformat(),
+                'usage': {
+                    'prompt_tokens': chat.usage.prompt_tokens,
+                    'completion_tokens': chat.usage.completion_tokens,
+                    'total_tokens': chat.usage.total_tokens
+                },
+                'model_used': MODEL_TYPE,
+                'message_length': len(user_message)
+            })
+            
+        except Exception as llm_error:
+            print(f"LLM Error in chat_test: {llm_error}")
+            return jsonify({
+                'error': f'LLM call failed: {str(llm_error)}',
+                'status': 'llm_error',
+                'timestamp': dt.datetime.now().isoformat(),
+                'original_message': user_message
+            }), 500
+        
+    except Exception as e:
+        print(f"General Error in chat_test: {e}")
+        return jsonify({'error': str(e), 'status': 'general_error'}), 500
+
+@app.route('/api/financial-chat', methods=['POST'])
+def financial_chat():
+    """
+    Chat with AI financial assistant about accounts, rules, and financial planning
+    Expected payload:
+    {
+        "message": "User's question about their finances",
+        "conversation_id": "optional-uuid-for-conversation-tracking",
+        "include_context": true
+    }
+    """
+    try:
+        data = request.get_json()
+        
+        if not data or 'message' not in data:
+            return jsonify({'error': 'Message is required'}), 400
+        
+        # Validate Azure OpenAI configuration
+        if not all([API_KEY, API_VERSION, AZURE_ENDPOINT, MODEL_TYPE]):
+            return jsonify({'error': 'Azure OpenAI configuration incomplete. Please check environment variables.'}), 500
+        
+        user_message = data['message']
+        conversation_id = data.get('conversation_id', str(uuid.uuid4()))
+        include_context = data.get('include_context', True)
+        
+        # Get financial context if requested
+        financial_context = get_financial_context() if include_context else {}
+        
+        # Create context-aware prompt
+        system_prompt = """
+            You are a Personal Finance expert integrated in a personal finance application called Contrai. 
+            You help users manage their money through automated rules and account monitoring.
+
+            The user can:
+            - Connect multiple bank accounts via Plaid
+            - Create automated transfer rules (percentage or fixed amount based)
+            - Monitor money flows between accounts
+            - Set custom names for their accounts
+
+            When answering:
+            - Be helpful, concise, and actionable
+            - Reference their specific accounts (using as well the custom name and bank) and rules when relevant
+            - Suggest improvements to their financial automation
+            - Help them understand their money flows
+            - Keep responses focused on their actual financial data
+            """
+        
+        # Build context message if available
+        context_message = ""
+        if financial_context:
+            if financial_context.get('accounts'):
+                accounts_summary = []
+                total_balance = 0
+                for acc in financial_context['accounts']:
+                    balance = acc.get('balance', 0) or 0
+                    total_balance += balance
+                    accounts_summary.append(f"- {acc['name']} ({acc['type']}): ${balance:,.2f}")
+                
+                context_message += f"\nYour Accounts (Total: ${total_balance:,.2f}):\n" + "\n".join(accounts_summary)
+            
+            if financial_context.get('rules'):
+                active_rules = [r for r in financial_context['rules'] if r.get('is_active')]
+                if active_rules:
+                    context_message += f"\n\nYour Active Transfer Rules ({len(active_rules)}):\n"
+                    for rule in active_rules[:5]:  # Show first 5 rules
+                        amount_info = f"{rule.get('percentage')}%" if rule.get('transfer_type') == 'percentage' else f"${rule.get('amount')}"
+                        context_message += f"- {rule['name']}: {amount_info} {rule.get('frequency', 'monthly')}\n"
+        
+        # Create messages for Azure OpenAI
+        messages = [
+            {"role": "system", "content": system_prompt}
+        ]
+        
+        if context_message:
+            messages.append({"role": "system", "content": f"Current Financial Context:{context_message}"})
+        
+        messages.append({"role": "user", "content": user_message})
+        
+        # Call Azure OpenAI
+        try:
+            # Initialize client with minimal configuration
+            chat_model = AzureOpenAI(
+                azure_endpoint=AZURE_ENDPOINT,
+                api_key=API_KEY,
+                api_version=API_VERSION
+            )
+        except Exception as init_error:
+            print(f"OpenAI client initialization error: {init_error}")
+            return jsonify({'error': f'Azure OpenAI client initialization failed: {str(init_error)}'}), 500
+        
+        chat = chat_model.chat.completions.create(
+            model=MODEL_TYPE,
+            messages=messages,
+            temperature=0.7,
+            max_tokens=800,
+            n=1,
+        )
+        
+        response_content = chat.choices[0].message.content
+        
+        return jsonify({
+            'response': response_content,
+            'conversation_id': conversation_id,
+            'usage': {
+                'prompt_tokens': chat.usage.prompt_tokens,
+                'completion_tokens': chat.usage.completion_tokens,
+                'total_tokens': chat.usage.total_tokens
+            },
+            'timestamp': dt.datetime.now().isoformat(),
+            'context_included': include_context
+        })
+        
+    except Exception as e:
+        print(f"Error in financial_chat: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
 
 if __name__ == '__main__':
-    app.run(port=int(os.getenv('PORT', 8000)))
+    app.run(port=int(os.getenv('FLASK_RUN_PORT', 8000)))
