@@ -6,17 +6,33 @@ $threads-font-path: "~plaid-threads/fonts";
   box-sizing: border-box;
 }
 
+.App {
+  height: 100vh;
+  overflow: hidden; // Prevent page scroll on iOS
+}
+
 .container {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  min-width: 70 * $unit;
-  max-width: 120 * $unit;
-  margin: 0 auto;
-  padding-bottom: 100px; // Add space for bottom navigation
+  height: 100vh;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #f8f9fa;
 }
 
 .content {
-  // width: 100%;
   flex: 1;
+  overflow-y: auto; // Enable scrolling within content area
+  padding: env(safe-area-inset-top) 0 calc(env(safe-area-inset-bottom) + 100px) 0; // iOS safe area + bottom nav space
+  -webkit-overflow-scrolling: touch; // Smooth scrolling on iOS
+}
+
+// iOS specific styles
+@supports (-webkit-touch-callout: none) {
+  .container {
+    height: 100vh;
+    height: -webkit-fill-available; // iOS viewport fix
+  }
 }
