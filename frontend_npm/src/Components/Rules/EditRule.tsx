@@ -116,9 +116,6 @@ const EditRule: React.FC<EditRuleProps> = ({ rule, onBack, onSuccess }) => {
   return (
     <div className={styles.editRule}>
       <div className={styles.header}>
-        <button className={styles.backBtn} onClick={onBack}>
-          ← Back
-        </button>
         <div>
           <h2>Edit Rule</h2>
           <p>Update your automatic transfer rule</p>

@@ -145,7 +145,12 @@ const Rules: React.FC = () => {
   };
 
   if (showCreateForm) {
-    return <CreateRule />;
+    return (
+      <CreateRule 
+        onCancel={() => setShowCreateForm(false)}
+        onSuccess={handleRuleCreated}
+      />
+    );
   }
 
   if (editingRule) {

@@ -20,7 +20,12 @@ interface RuleData {
   frequency: string;
 }
 
-const CreateRule: React.FC = () => {
+interface CreateRuleProps {
+  onCancel?: () => void;
+  onSuccess?: () => void;
+}
+
+const CreateRule: React.FC<CreateRuleProps> = ({ onCancel, onSuccess }) => {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [formData, setFormData] = useState<RuleData>({
     name: '',
@@ -100,7 +105,11 @@ const CreateRule: React.FC = () => {
         frequency: 'monthly'
       });
 
-      alert('Rule created successfully!');
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        alert('Rule created successfully!');
+      }
     } catch (err) {
       console.error('Error creating rule:', err);
       setError(err instanceof Error ? err.message : 'Failed to create rule');
@@ -267,7 +276,7 @@ const CreateRule: React.FC = () => {
           <button
             type="button"
             className={styles.cancelBtn}
-            onClick={() => window.history.back()}
+            onClick={onCancel}
           >
             Cancel
           </button>
