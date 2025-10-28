@@ -78,6 +78,7 @@ MODEL_TYPE = os.getenv('MODEL_TYPE')
 API_KEY = os.getenv('API_KEY')
 API_VERSION = os.getenv('API_VERSION')
 AZURE_ENDPOINT = os.getenv('AZURE_ENDPOINT')
+DEPLOYMENT_NAME = os.getenv('DEPLOYMENT_NAME')
 
 def empty_to_none(field):
     value = os.getenv(field)
@@ -1104,86 +1105,6 @@ def get_financial_context():
         print(f"Error getting financial context: {e}")
         return {}
 
-@app.route('/api/chat-test', methods=['POST'])
-def chat_test():
-    """
-    Simple chat test endpoint to verify LLM connectivity
-    Expected payload:
-    {
-        "message": "Test message"
-    }
-    """
-    try:
-        data = request.get_json()
-        
-        if not data or 'message' not in data:
-            return jsonify({'error': 'Message is required'}), 400
-        
-        user_message = data['message']
-        
-        # Validate Azure OpenAI configuration
-        if not all([API_KEY, API_VERSION, AZURE_ENDPOINT, MODEL_TYPE]):
-            return jsonify({
-                'error': 'Azure OpenAI configuration incomplete',
-                'missing_config': {
-                    'API_KEY': bool(API_KEY),
-                    'API_VERSION': bool(API_VERSION),
-                    'AZURE_ENDPOINT': bool(AZURE_ENDPOINT),
-                    'MODEL_TYPE': bool(MODEL_TYPE)
-                }
-            }), 500
-        
-        # Simple test call to Azure OpenAI
-        try:
-            chat_model = AzureOpenAI(
-                azure_endpoint=AZURE_ENDPOINT,
-                api_key=API_KEY,
-                api_version=API_VERSION
-            )
-            
-            # Simple test messages
-            messages = [
-                {"role": "system", "content": "You are a helpful assistant. Respond in Spanish. Keep responses short and friendly."},
-                {"role": "user", "content": user_message}
-            ]
-            
-            chat = chat_model.chat.completions.create(
-                model=MODEL_TYPE,
-                messages=messages,
-                temperature=0.3,
-                max_tokens=150,
-                n=1,
-            )
-            
-            response_content = chat.choices[0].message.content
-            
-            return jsonify({
-                'response': response_content,
-                'status': 'success',
-                'test_mode': True,
-                'timestamp': dt.datetime.now().isoformat(),
-                'usage': {
-                    'prompt_tokens': chat.usage.prompt_tokens,
-                    'completion_tokens': chat.usage.completion_tokens,
-                    'total_tokens': chat.usage.total_tokens
-                },
-                'model_used': MODEL_TYPE,
-                'message_length': len(user_message)
-            })
-            
-        except Exception as llm_error:
-            print(f"LLM Error in chat_test: {llm_error}")
-            return jsonify({
-                'error': f'LLM call failed: {str(llm_error)}',
-                'status': 'llm_error',
-                'timestamp': dt.datetime.now().isoformat(),
-                'original_message': user_message
-            }), 500
-        
-    except Exception as e:
-        print(f"General Error in chat_test: {e}")
-        return jsonify({'error': str(e), 'status': 'general_error'}), 500
-
 @app.route('/api/financial-chat', methods=['POST'])
 def financial_chat():
     """
@@ -1300,7 +1221,102 @@ def financial_chat():
         print(f"Error in financial_chat: {e}")
         return jsonify({'error': str(e)}), 500
 
+from agent_framework import ChatAgent
+from agent_framework.azure import AzureOpenAIChatClient
+import json
+import tempfile
+import os
 
+@app.route('/api/financial-chat', methods=['POST'])
+def financial_chat():
+    """
+    Chat with AI financial assistant about accounts, rules, and financial planning
+    Expected payload:
+    {
+        "message": "User's question about their finances",
+        "conversation_id": "optional-uuid-for-conversation-tracking",
+        "include_context": true
+    }
+    """
+    try:
+        data = request.get_json()
+        
+        if not data or 'message' not in data:
+            return jsonify({'error': 'Message is required'}), 400
+        
+        # Validate Azure OpenAI configuration
+        if not all([API_KEY, API_VERSION, AZURE_ENDPOINT, MODEL_TYPE]):
+            return jsonify({'error': 'Azure OpenAI configuration incomplete. Please check environment variables.'}), 500
+        
+        user_message = data['message']
+        conversation_id = data.get('conversation_id', str(uuid.uuid4()))
+        include_context = data.get('include_context', True)
+        
+        agent = ChatAgent(
+            chat_client=AzureOpenAIChatClient(
+                endpoint=AZURE_ENDPOINT,
+                deployment_name=DEPLOYMENT_NAME,
+                api_version=API_VERSION,
+                api_key = API_KEY, # Optional if using AzureCliCredential
+                # credential=AzureCliCredential(), # optional if using api_key
+                # ai_model_id="gpt-4o-mini"
+            ),
+            name="Financial Assistant",
+            instructions= """You are a Personal Finance expert integrated in a personal finance application called Contrai. 
+            You help users manage their money through automated rules and account monitoring.
 
+            The user can:
+            - Connect multiple bank accounts via Plaid
+            - Create automated transfer rules (percentage or fixed amount based)
+            - Monitor money flows between accounts
+            - Set custom names for their accounts
+
+            When answering:
+            - Be helpful, concise, and actionable
+            - Reference their specific accounts (using as well the custom name and bank) and rules when relevant
+            - Suggest improvements to their financial automation
+            - Help them understand their money flows
+            - Keep responses focused on their actual financial data"""
+        )
+
+        thread = agent.get_new_thread()
+
+        # Run the agent and append the exchange to the thread
+        response = await agent.run(user_message, thread=thread)
+        print(response.text)
+
+        # Serialize the thread state
+        serialized_thread = await thread.serialize()
+        serialized_json = json.dumps(serialized_thread)
+
+        # Example: save to a local file (replace with DB or blob storage in production)
+        temp_dir = tempfile.gettempdir()
+        temp_dir = './'
+        file_path = os.path.join(temp_dir, "agent_thread.json")
+        with open(file_path, "w") as f:
+            f.write(serialized_json)
+
+            # Read persisted JSON
+        with open(file_path, "r") as f:
+            loaded_json = f.read()
+
+        reloaded_data = json.loads(loaded_json)
+
+        # Deserialize the thread into an AgentThread tied to the same agent type
+        resumed_thread = await agent.deserialize_thread(reloaded_data)
+
+        # Continue the conversation with resumed thread
+        response = await agent.run("Now tell that joke in the voice of a pirate.", thread=resumed_thread)
+        print(response.text)
+        return jsonify({
+            'response': response.text,
+            'conversation_id': conversation_id,
+            'timestamp': dt.datetime.now().isoformat(),
+            'context_included': include_context
+        })
+    except Exception as e:
+        print(f"Error in financial_chat: {e}")
+        return jsonify({'error': str(e)}), 500
+    
 if __name__ == '__main__':
     app.run(port=int(os.getenv('FLASK_RUN_PORT', 8000)))

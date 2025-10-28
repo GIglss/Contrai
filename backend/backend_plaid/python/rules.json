@@ -1,0 +1,32 @@
+{
+  "rules": [
+    {
+      "id": "a48ae383-4eeb-4f74-acfb-e829072c2168",
+      "name": "Montly savings",
+      "description": "",
+      "fromAccount": "bGe3Gxdq9DH8PyBawGX6fN1X5L6466SvJxnlo",
+      "toAccount": "mNyK5JNz48Sj1AGZ5eqKuZEbKzjvZnTg41yW7",
+      "transferType": "percentage",
+      "amount": null,
+      "percentage": 11,
+      "frequency": "monthly",
+      "isActive": true,
+      "createdAt": "2025-10-25T00:51:32.374422",
+      "lastExecuted": null
+    },
+    {
+      "id": "1947d879-cbea-476d-84f1-b0aaddb2e024",
+      "name": "Check transfer",
+      "description": "",
+      "fromAccount": "L3WlK9lvJXhR51L7WbKaco4dAnkEgvHLXZGn1",
+      "toAccount": "mNyK5JNz48Sj1AGZ5eqKuZEbKzjvZnTg41yW7",
+      "transferType": "amount",
+      "amount": 100,
+      "percentage": null,
+      "frequency": "monthly",
+      "isActive": true,
+      "createdAt": "2025-10-25T10:38:34.062370",
+      "lastExecuted": null
+    }
+  ]
+}
