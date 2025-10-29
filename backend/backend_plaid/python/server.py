@@ -1237,6 +1237,7 @@ def financial_chat():
         return jsonify({'error': str(e)}), 500
 
 # Initialize enhanced financial agent if available
+from financial_agent import get_account_summary,get_rules_summary,create_savings_rule_suggestion,analyze_spending_patterns
 def initialize_financial_agent():
     """Initialize the enhanced financial agent with Contrai data"""
     global financial_agent
@@ -1253,6 +1254,54 @@ def initialize_financial_agent():
                 api_version=API_VERSION,
                 api_key=API_KEY
             )
+        #     financial_agent = ChatAgent(
+        #     chat_client=AzureOpenAIChatClient(
+        #         endpoint=AZURE_ENDPOINT,
+        #         deployment_name=DEPLOYMENT_NAME,
+        #         api_version=API_VERSION,
+        #         api_key=API_KEY,
+        #     ),
+        #     name="Contrai Financial Assistant",
+        #     instructions="""You are Contrai's AI Financial Assistant, specialized in personal finance management.
+
+        #                     Your capabilities:
+        #                     - Analyze connected bank accounts and balances
+        #                     - Review and suggest automated transfer rules
+        #                     - Provide personalized financial insights and recommendations
+        #                     - Help users optimize their money management through automation
+
+        #                     Key features of Contrai:
+        #                     - Users connect bank accounts via Plaid
+        #                     - Create automated transfer rules (percentage or fixed amount)
+        #                     - Monitor money flows between accounts
+        #                     - Set custom names for accounts
+
+        #                     When responding:
+        #                     - Be helpful, concise, and actionable
+        #                     - Reference specific accounts and rules when available
+        #                     - Suggest practical improvements to financial automation
+        #                     - Use emojis sparingly but effectively (💰 💡 📊)
+        #                     - Always ask for approval before making specific rule suggestions
+        #                     - Keep responses focused on the user's actual financial data
+
+        #                     You have access to specialized functions for:
+        #                     - Getting account summaries
+        #                     - Analyzing spending patterns (requires approval)
+        #                     - Creating savings rule suggestions (requires approval)
+        #                     - Reviewing transfer rules""",
+        #     tools = [
+        #         get_transactions,
+        #         get_account_summary,
+        #         get_rules_summary,
+        #         create_savings_rule_suggestion,
+        #         analyze_spending_patterns
+        #     ]
+        # )
+
+
+
+
+
             print("Enhanced financial agent initialized successfully")
         except Exception as e:
             print(f"Failed to initialize enhanced financial agent: {e}")
@@ -1268,6 +1317,13 @@ def financial_chat_agent():
         "message": "User's question about their finances",
         "conversation_id": "optional-uuid-for-conversation-tracking",
         "include_context": true
+
+        within enhanced chat-->
+        "message": "User's question about their finances",
+        "include_context": true
+        user_id: "string user id",
+        session_id: "optional-uuid-for-conversation-tracking",
+        include_context: true
     }
     """
     try:
@@ -1311,6 +1367,92 @@ def financial_chat_agent():
 async def run_financial_agent_async(user_message, conversation_id, include_context=True):
     """Async wrapper for running the financial agent"""
     try:
+        # get conversation id
+        conversation_id = conversation_id or str(uuid.uuid4())
+        # see if in the /contrai_chat_sessions there is an existing conversation thread to resume with such conversation_id
+        temp_dir = './'
+        # if file exists, load it
+        session_file = os.path.join(temp_dir, "contrai_chat_sessions", f"{conversation_id}.json")
+        if os.path.exists(session_file):
+            print(f"Resuming conversation with ID: {conversation_id}")
+            # Read persisted JSON
+            with open(session_file, "r") as f:
+                loaded_json = f.read()
+
+            reloaded_data = json.loads(loaded_json)
+
+            # Deserialize the thread into an AgentThread tied to the same agent type
+            resumed_thread = await financial_agent.deserialize_thread(reloaded_data)
+
+        # if there is no existing thread, create a new one
+        else:
+            print(f"Starting new conversation with ID: {conversation_id}")
+            resumed_thread = financial_agent.get_new_thread()
+            # also, add the financial context to the thread as initial message
+            # Get financial context if requested
+            context_data = {}
+            if include_context:
+                try:
+                    # Use existing function to get financial context
+                    context_data = get_financial_context()
+                    print("Financial context fetched successfully")
+                except Exception as e:
+                    print(f"Warning: Could not fetch financial context: {e}")
+            # Set up the agent's context
+            if context_data:
+                print("Using financial context for user query")
+                context_message = f"User's current financial context: {json.dumps(context_data, indent=2)}"
+                await financial_agent.run(context_message, thread=resumed_thread)
+
+        
+
+
+        # run the agent with the user message and thread
+        response = await financial_agent.run(user_message, thread=resumed_thread)
+
+        # save the updated thread for future use
+        serialized_thread = await resumed_thread.serialize()
+        serialized_json = json.dumps(serialized_thread)
+
+        # save to a local file (replace with DB or blob storage in production)
+        file_path = os.path.join(temp_dir, "contrai_chat_sessions", f"{conversation_id}.json")
+        with open(file_path, "w") as f:
+            f.write(serialized_json)
+
+
+        # return the agent's response
+        return {
+            'response': response.text if hasattr(response, 'text') else str(response),
+            'conversation_id': conversation_id,
+            # 'context_included': bool(context_data),
+            'timestamp': dt.datetime.now().isoformat()
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         # Get financial context if requested
         context_data = {}
         if include_context:
@@ -1343,7 +1485,9 @@ async def run_financial_agent_async(user_message, conversation_id, include_conte
                 print(f"Could not resume conversation: {e}")
                 thread = financial_agent.get_new_thread()
         else:
+            print(type(financial_agent))
             thread = financial_agent.get_new_thread()
+            print('got new thread')
         
         # Run the agent
         response = await financial_agent.run(user_message, thread=thread)

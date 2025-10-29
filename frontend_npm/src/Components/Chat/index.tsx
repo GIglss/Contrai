@@ -24,7 +24,7 @@ const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [conversationId, setConversationId] = useState<string>('');
+  const [conversationId, setConversationId] = useState<string>('123');
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -64,7 +64,7 @@ const Chat: React.FC = () => {
     setError(null);
 
     try {
-      const response = await fetch('/api/financial-chat', {
+      const response = await fetch('/api/financial-chat-agent', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

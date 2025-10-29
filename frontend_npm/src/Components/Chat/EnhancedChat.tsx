@@ -34,13 +34,20 @@ const EnhancedChat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [sessionId, setSessionId] = useState<string>('');
+  const [sessionId, setSessionId] = useState<string>('1234');
   const [userId] = useState<string>('user_123'); // Replace with actual user ID from auth
   const [error, setError] = useState<string | null>(null);
   const [pendingApprovals, setPendingApprovals] = useState<PendingApproval[]>([]);
   const [contextEnabled, setContextEnabled] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Persist session and messages in localStorage
+  const STORAGE_KEYS = {
+    sessionId: 'contrai_chat_session_id_1',
+    messages: 'contrai_chat_messages',
+    contextEnabled: 'contrai_chat_context_enabled'
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -50,8 +57,35 @@ const EnhancedChat: React.FC = () => {
     scrollToBottom();
   }, [messages]);
 
+  // Load persisted data on component mount
   useEffect(() => {
-    // Add enhanced welcome message
+    try {
+      // Load session ID
+      const savedSessionId = localStorage.getItem(STORAGE_KEYS.sessionId);
+      if (savedSessionId) {
+        setSessionId(savedSessionId);
+      }
+
+      // Load messages
+      const savedMessages = localStorage.getItem(STORAGE_KEYS.messages);
+      if (savedMessages) {
+        const parsedMessages = JSON.parse(savedMessages);
+        setMessages(parsedMessages);
+        return; // Don't show welcome message if we have saved messages
+      }
+
+      // Load context setting
+      const savedContextEnabled = localStorage.getItem(STORAGE_KEYS.contextEnabled);
+      if (savedContextEnabled !== null) {
+        setContextEnabled(JSON.parse(savedContextEnabled));
+      }
+    } catch (error) {
+      console.error('Error loading saved chat data:', error);
+      // Clear corrupted data
+      localStorage.removeItem(STORAGE_KEYS.messages);
+    }
+
+    // Show welcome message only if no saved messages
     const welcomeMessage: Message = {
       id: 'welcome',
       content: `¡Hola! Soy tu asistente financiero inteligente de Contrai. 
@@ -73,7 +107,38 @@ const EnhancedChat: React.FC = () => {
       timestamp: new Date().toISOString()
     };
     setMessages([welcomeMessage]);
-  }, []);
+  }, []); // Empty dependency array - run only on mount
+
+  // Save messages to localStorage whenever they change
+  useEffect(() => {
+    if (messages.length > 0) {
+      try {
+        localStorage.setItem(STORAGE_KEYS.messages, JSON.stringify(messages));
+      } catch (error) {
+        console.error('Error saving messages to localStorage:', error);
+      }
+    }
+  }, [messages]);
+
+  // Save sessionId to localStorage whenever it changes
+  useEffect(() => {
+    if (sessionId) {
+      try {
+        localStorage.setItem(STORAGE_KEYS.sessionId, sessionId);
+      } catch (error) {
+        console.error('Error saving session ID to localStorage:', error);
+      }
+    }
+  }, [sessionId]);
+
+  // Save context setting to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.contextEnabled, JSON.stringify(contextEnabled));
+    } catch (error) {
+      console.error('Error saving context setting to localStorage:', error);
+    }
+  }, [contextEnabled]);
 
   const sendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
@@ -200,10 +265,18 @@ const EnhancedChat: React.FC = () => {
     setPendingApprovals([]);
     setError(null);
     
+    // Clear from localStorage
+    try {
+      localStorage.removeItem(STORAGE_KEYS.sessionId);
+      localStorage.removeItem(STORAGE_KEYS.messages);
+    } catch (error) {
+      console.error('Error clearing localStorage:', error);
+    }
+    
     // Re-add welcome message
     const welcomeMessage: Message = {
       id: 'welcome-new',
-      content: "Chat reiniciado. Nueva sesión iniciada. ¿En qué puedo ayudarte?",
+      content: "💬 **Nueva conversación iniciada** \n\nChat reiniciado. ¿En qué puedo ayudarte hoy?",
       role: 'assistant',
       timestamp: new Date().toISOString()
     };
