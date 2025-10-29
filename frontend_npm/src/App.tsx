@@ -10,6 +10,7 @@ import Context from "./Context";
 
 import styles from "./App.module.scss";
 import { CraCheckReportProduct } from "plaid";
+import EnhancedChat from "./Components/Chat/EnhancedChat";
 
 const App = () => {
   const { linkSuccess, isPaymentInitiation, itemId, dispatch } =
@@ -132,7 +133,7 @@ const App = () => {
       case 'flows':
         return <Flows />;
       case 'chat':
-        return <Chat />;
+        return <EnhancedChat />;
       default:
         return <AccountsConnected />;
     }

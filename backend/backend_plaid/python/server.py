@@ -4,6 +4,8 @@ import os
 import datetime as dt
 import json
 import time
+import asyncio
+import tempfile
 from datetime import date, timedelta
 import uuid
 
@@ -11,6 +13,16 @@ from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from openai import AzureOpenAI
 import plaid
+
+# Agent Framework imports
+try:
+    from agent_framework import ChatAgent
+    from agent_framework.azure import AzureOpenAIChatClient
+    from financial_agent import create_contrai_financial_agent
+    AGENT_FRAMEWORK_AVAILABLE = True
+except ImportError:
+    print("Warning: Agent framework not available. Enhanced chat features will be disabled.")
+    AGENT_FRAMEWORK_AVAILABLE = False
 from plaid.model.payment_amount import PaymentAmount
 from plaid.model.payment_amount_currency import PaymentAmountCurrency
 from plaid.model.products import Products
@@ -120,22 +132,25 @@ for product in PLAID_PRODUCTS:
     products.append(Products(product))
 
 
-# We store the access_token in memory - in production, store it in a secure
-# persistent data store.
-access_token = None
-# The payment_id is only relevant for the UK Payment Initiation product.
-# We store the payment_id in memory - in production, store it in a secure
-# persistent data store.
-payment_id = None
-# The transfer_id is only relevant for Transfer ACH product.
-# We store the transfer_id in memory - in production, store it in a secure
-# persistent data store.
-transfer_id = None
-# We store the user_token in memory - in production, store it in a secure
-# persistent data store.
-user_token = None
+# # We store the access_token in memory - in production, store it in a secure
+# # persistent data store.
+# access_token = None
+# # The payment_id is only relevant for the UK Payment Initiation product.
+# # We store the payment_id in memory - in production, store it in a secure
+# # persistent data store.
+# payment_id = None
+# # The transfer_id is only relevant for Transfer ACH product.
+# # We store the transfer_id in memory - in production, store it in a secure
+# # persistent data store.
+# transfer_id = None
+# # We store the user_token in memory - in production, store it in a secure
+# # persistent data store.
+# user_token = None
 
-item_id = None
+# item_id = None
+
+# Enhanced Financial Agent Global Variable
+financial_agent = None
 
 
 @app.route('/api/info', methods=['POST'])
@@ -1221,16 +1236,33 @@ def financial_chat():
         print(f"Error in financial_chat: {e}")
         return jsonify({'error': str(e)}), 500
 
-from agent_framework import ChatAgent
-from agent_framework.azure import AzureOpenAIChatClient
-import json
-import tempfile
-import os
+# Initialize enhanced financial agent if available
+def initialize_financial_agent():
+    """Initialize the enhanced financial agent with Contrai data"""
+    global financial_agent
+    if AGENT_FRAMEWORK_AVAILABLE and financial_agent is None:
+        try:
+            # Validate Azure OpenAI configuration
+            if not all([API_KEY, API_VERSION, AZURE_ENDPOINT, DEPLOYMENT_NAME]):
+                print("Warning: Azure OpenAI configuration incomplete for enhanced agent")
+                return False
+                
+            financial_agent = create_contrai_financial_agent(
+                azure_endpoint=AZURE_ENDPOINT,
+                deployment_name=DEPLOYMENT_NAME,
+                api_version=API_VERSION,
+                api_key=API_KEY
+            )
+            print("Enhanced financial agent initialized successfully")
+        except Exception as e:
+            print(f"Failed to initialize enhanced financial agent: {e}")
+            financial_agent = None
+    return financial_agent is not None
 
-@app.route('/api/financial-chat', methods=['POST'])
-def financial_chat():
+@app.route('/api/financial-chat-agent', methods=['POST'])
+def financial_chat_agent():
     """
-    Chat with AI financial assistant about accounts, rules, and financial planning
+    Enhanced chat with AI financial assistant using agent framework
     Expected payload:
     {
         "message": "User's question about their finances",
@@ -1244,6 +1276,12 @@ def financial_chat():
         if not data or 'message' not in data:
             return jsonify({'error': 'Message is required'}), 400
         
+        if not AGENT_FRAMEWORK_AVAILABLE:
+            return jsonify({
+                'error': 'Agent framework not available',
+                'fallback': 'Please check if agent_framework is installed'
+            }), 503
+        
         # Validate Azure OpenAI configuration
         if not all([API_KEY, API_VERSION, AZURE_ENDPOINT, MODEL_TYPE]):
             return jsonify({'error': 'Azure OpenAI configuration incomplete. Please check environment variables.'}), 500
@@ -1252,71 +1290,87 @@ def financial_chat():
         conversation_id = data.get('conversation_id', str(uuid.uuid4()))
         include_context = data.get('include_context', True)
         
-        agent = ChatAgent(
-            chat_client=AzureOpenAIChatClient(
-                endpoint=AZURE_ENDPOINT,
-                deployment_name=DEPLOYMENT_NAME,
-                api_version=API_VERSION,
-                api_key = API_KEY, # Optional if using AzureCliCredential
-                # credential=AzureCliCredential(), # optional if using api_key
-                # ai_model_id="gpt-4o-mini"
-            ),
-            name="Financial Assistant",
-            instructions= """You are a Personal Finance expert integrated in a personal finance application called Contrai. 
-            You help users manage their money through automated rules and account monitoring.
-
-            The user can:
-            - Connect multiple bank accounts via Plaid
-            - Create automated transfer rules (percentage or fixed amount based)
-            - Monitor money flows between accounts
-            - Set custom names for their accounts
-
-            When answering:
-            - Be helpful, concise, and actionable
-            - Reference their specific accounts (using as well the custom name and bank) and rules when relevant
-            - Suggest improvements to their financial automation
-            - Help them understand their money flows
-            - Keep responses focused on their actual financial data"""
-        )
-
-        thread = agent.get_new_thread()
-
-        # Run the agent and append the exchange to the thread
-        response = await agent.run(user_message, thread=thread)
-        print(response.text)
-
-        # Serialize the thread state
-        serialized_thread = await thread.serialize()
-        serialized_json = json.dumps(serialized_thread)
-
-        # Example: save to a local file (replace with DB or blob storage in production)
-        temp_dir = tempfile.gettempdir()
-        temp_dir = './'
-        file_path = os.path.join(temp_dir, "agent_thread.json")
-        with open(file_path, "w") as f:
-            f.write(serialized_json)
-
-            # Read persisted JSON
-        with open(file_path, "r") as f:
-            loaded_json = f.read()
-
-        reloaded_data = json.loads(loaded_json)
-
-        # Deserialize the thread into an AgentThread tied to the same agent type
-        resumed_thread = await agent.deserialize_thread(reloaded_data)
-
-        # Continue the conversation with resumed thread
-        response = await agent.run("Now tell that joke in the voice of a pirate.", thread=resumed_thread)
-        print(response.text)
-        return jsonify({
-            'response': response.text,
-            'conversation_id': conversation_id,
-            'timestamp': dt.datetime.now().isoformat(),
-            'context_included': include_context
-        })
+        # Initialize agent if needed
+        if not initialize_financial_agent():
+            return jsonify({
+                'error': 'Failed to initialize financial agent',
+                'fallback': 'Using basic chat functionality'
+            }), 503
+        
+        # Run agent in async wrapper
+        response = asyncio.run(run_financial_agent_async(
+            user_message, conversation_id, include_context
+        ))
+        
+        return jsonify(response)
+        
     except Exception as e:
-        print(f"Error in financial_chat: {e}")
+        print(f"Error in financial_chat_agent: {e}")
         return jsonify({'error': str(e)}), 500
+
+async def run_financial_agent_async(user_message, conversation_id, include_context=True):
+    """Async wrapper for running the financial agent"""
+    try:
+        # Get financial context if requested
+        context_data = {}
+        if include_context:
+            try:
+                # Use existing function to get financial context
+                context_data = get_financial_context()
+                print("Financial context fetched successfully")
+            except Exception as e:
+                print(f"Warning: Could not fetch financial context: {e}")
+        
+        # Set up the agent's context
+        if context_data:
+            print("Using financial context for user query")
+            context_message = f"User's current financial context: {json.dumps(context_data, indent=2)}"
+            user_message = f"{context_message}\n\nUser question: {user_message}"
+        
+        # Use session directory for conversation persistence
+        session_dir = os.path.join('./', "contrai_chat_sessions")
+        os.makedirs(session_dir, exist_ok=True)
+        session_file = os.path.join(session_dir, f"{conversation_id}.json")
+        
+        # Load or create conversation thread
+        thread = None
+        if os.path.exists(session_file):
+            try:
+                with open(session_file, 'r') as f:
+                    thread_data = json.load(f)
+                thread = await financial_agent.deserialize_thread(thread_data)
+            except Exception as e:
+                print(f"Could not resume conversation: {e}")
+                thread = financial_agent.get_new_thread()
+        else:
+            thread = financial_agent.get_new_thread()
+        
+        # Run the agent
+        response = await financial_agent.run(user_message, thread=thread)
+        
+        # Save conversation thread
+        if hasattr(response, 'thread') and response.thread:
+            try:
+                thread_data = await response.thread.serialize()
+                with open(session_file, 'w') as f:
+                    json.dump(thread_data, f)
+            except Exception as e:
+                print(f"Could not save conversation: {e}")
+        
+        return {
+            'response': response.text if hasattr(response, 'text') else str(response),
+            'conversation_id': conversation_id,
+            'context_included': bool(context_data),
+            'timestamp': dt.datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        print(f"Error in financial agent: {e}")
+        return {
+            'error': str(e),
+            'conversation_id': conversation_id,
+            'timestamp': dt.datetime.now().isoformat()
+        }
     
 if __name__ == '__main__':
     app.run(port=int(os.getenv('FLASK_RUN_PORT', 8000)))
