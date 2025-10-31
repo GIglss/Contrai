@@ -107,7 +107,7 @@ def get_account_summary(user_financial_data: Annotated[str, Field(description="J
         
         for acc in accounts[:5]:  # Show first 5 accounts
             balance = acc.get('balance', 0) or 0
-            name = acc.get('name', 'Unknown Account')
+            name = acc.get('namee', 'Unknown Account')
             bank = acc.get('bank', 'Unknown Bank')
             summary += f"• {name} ({bank}): ${balance:,.2f}\n"
         
@@ -218,8 +218,8 @@ def get_rules_summary(user_financial_data: Annotated[str, Field(description="JSO
         return f"Error getting rules summary: {str(e)}"
 
 
-class ContraiFinancialAgent:
-    """Main financial agent for Contrai application."""
+class ContraiFinancialAgent(ChatAgent):
+    """Main financial agent for Contrai application, inheriting from ChatAgent."""
     
     def __init__(
         self,
@@ -230,11 +230,8 @@ class ContraiFinancialAgent:
         memory_path: str = "./contrai_memory",
         sessions_path: str = "./contrai_sessions"
     ):
-        self.memory_manager = ContraiMemoryManager(memory_path)
-        self.session_manager = ContraiSessionManager(sessions_path)
-        
-        # Initialize the financial agent
-        self.agent = ChatAgent(
+        # Initialize the ChatAgent parent class
+        super().__init__(
             chat_client=AzureOpenAIChatClient(
                 endpoint=azure_endpoint,
                 deployment_name=deployment_name,
@@ -244,54 +241,57 @@ class ContraiFinancialAgent:
             name="Contrai Financial Assistant",
             instructions="""You are Contrai's AI Financial Assistant, specialized in personal finance management.
 
-Your capabilities:
-- Analyze connected bank accounts and balances
-- Review and suggest automated transfer rules
-- Provide personalized financial insights and recommendations
-- Help users optimize their money management through automation
+                            Your capabilities:
+                            - Analyze connected bank accounts and balances
+                            - Review and suggest automated transfer rules
+                            - Provide personalized financial insights and recommendations
+                            - Help users optimize their money management through automation
 
-Key features of Contrai:
-- Users connect bank accounts via Plaid
-- Create automated transfer rules (percentage or fixed amount)
-- Monitor money flows between accounts
-- Set custom names for accounts
+                            Key features of Contrai:
+                            - Users connect bank accounts via Plaid
+                            - Create automated transfer rules (percentage or fixed amount)
+                            - Monitor money flows between accounts
+                            - Set custom names for accounts
 
-When responding:
-- Be helpful, concise, and actionable
-- Reference specific accounts and rules when available
-- Suggest practical improvements to financial automation
-- Use emojis sparingly but effectively (💰 💡 📊)
-- Always ask for approval before making specific rule suggestions
-- Keep responses focused on the user's actual financial data
+                            When responding:
+                            - Be helpful, concise, and actionable
+                            - Reference specific accounts and rules when available
+                            - Suggest practical improvements to financial automation
+                            - Use emojis sparingly but effectively (💰 💡 📊)
+                            - Always ask for approval before making specific rule suggestions
+                            - Keep responses focused on the user's actual financial data
 
-You have access to specialized functions for:
-- Getting account summaries
-- Analyzing spending patterns (requires approval)
-- Creating savings rule suggestions (requires approval)
-- Reviewing transfer rules"""
+                            You have access to specialized functions for:
+                            - Getting account summaries
+                            - Analyzing spending patterns (requires approval)
+                            - Creating savings rule suggestions (requires approval)
+                            - Reviewing transfer rules""",
+            # Available financial tools
+            tools=[
+                get_account_summary,
+                get_rules_summary,
+                create_savings_rule_suggestion,
+                analyze_spending_patterns
+            ]
         )
         
-        # Available financial tools
-        self.tools = [
-            get_account_summary,
-            get_rules_summary,
-            create_savings_rule_suggestion,
-            analyze_spending_patterns
-        ]
+        # Initialize Contrai-specific managers
+        self.memory_manager = ContraiMemoryManager(memory_path)
+        self.session_manager = ContraiSessionManager(sessions_path)
     
     async def start_conversation(self, user_id: str, session_id: Optional[str] = None) -> str:
         """Start a new financial conversation."""
         if session_id is None:
             session_id = f"{user_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         
-        thread = self.agent.get_new_thread()
+        thread = self.get_new_thread()
         
         # Load user conversation context
         user_data = self.memory_manager.load_conversation_data(user_id)
         if user_data.get("insights_history"):
             last_insight = user_data["insights_history"][-1]["insight"]
             context_message = f"Previous financial insight: {last_insight[:200]}..."
-            await self.agent.run(context_message, thread=thread)
+            await self.run(context_message, thread=thread)
         
         # Save initial session state
         serialized_thread = await thread.serialize()
@@ -315,7 +315,7 @@ You have access to specialized functions for:
                 session_id = await self.start_conversation(user_id, session_id)
                 session_data = self.session_manager.load_session(session_id)
             
-            thread = await self.agent.deserialize_thread(session_data)
+            thread = await self.deserialize_thread(session_data)
             
             # Build context-aware message
             if financial_context:
@@ -329,7 +329,7 @@ Please use the appropriate functions to analyze this financial data and provide 
                 enhanced_message = message
             
             # Process with agent
-            result = await self.agent.run(enhanced_message, thread=thread)
+            result = await self.run(enhanced_message, thread=thread)
             
             # Save updated session
             serialized_thread = await thread.serialize()
