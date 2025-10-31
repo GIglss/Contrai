@@ -1053,6 +1053,39 @@ def update_rule(rule_id):
 
 ### LLM FINANCIAL ASSISTANT ###
 
+# Retrieve conversation history in front-end structure
+from conversation_history import get_conversation_from_session_file
+@app.route('/api/get-conversation-history/<session_id>', methods=['GET'])
+def get_conversation_history(session_id):
+    """Get conversation history for a session."""    
+    try:
+        messages = get_conversation_from_session_file(session_id)
+        
+        if messages is None:
+            return jsonify({
+                'success': False,
+                'error': 'Session not found',
+                'session_id': session_id,
+                'messages': []
+            }), 404
+        
+        return jsonify({
+            'success': True,
+            'session_id': session_id,
+            'messages': messages,
+            'message_count': len(messages)
+        })
+        
+    except Exception as e:
+        print(f"Error in get_conversation_history endpoint: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'session_id': session_id,
+            'messages': []
+        }), 500
+
+
 def get_financial_context():
     """Get current user's financial context for LLM"""
     try:
@@ -1341,9 +1374,10 @@ def financial_chat_agent():
         # Validate Azure OpenAI configuration
         if not all([API_KEY, API_VERSION, AZURE_ENDPOINT, MODEL_TYPE]):
             return jsonify({'error': 'Azure OpenAI configuration incomplete. Please check environment variables.'}), 500
-        
+        print('Data from fron', data)
         user_message = data['message']
-        conversation_id = data.get('conversation_id', str(uuid.uuid4()))
+        # conversation_id = data.get('conversation_id', str(uuid.uuid4()))
+        conversation_id = data.get('session_id', str(uuid.uuid4()))
         include_context = data.get('include_context', True)
         
         # Initialize agent if needed
@@ -1371,7 +1405,7 @@ async def run_financial_agent_async(user_message, conversation_id, include_conte
         conversation_id = conversation_id or str(uuid.uuid4())
         # see if in the /contrai_chat_sessions there is an existing conversation thread to resume with such conversation_id
         temp_dir = './'
-        # if file exists, load it
+        # if file exists, load it to the thread of such conversation
         session_file = os.path.join(temp_dir, "contrai_chat_sessions", f"{conversation_id}.json")
         if os.path.exists(session_file):
             print(f"Resuming conversation with ID: {conversation_id}")
@@ -1401,7 +1435,7 @@ async def run_financial_agent_async(user_message, conversation_id, include_conte
             # Set up the agent's context
             if context_data:
                 print("Using financial context for user query")
-                context_message = f"User's current financial context: {json.dumps(context_data, indent=2)}"
+                context_message = f"User's current financial context to use only as context, do not answer: {json.dumps(context_data, indent=2)}"
                 await financial_agent.run(context_message, thread=resumed_thread)
 
         
@@ -1409,7 +1443,7 @@ async def run_financial_agent_async(user_message, conversation_id, include_conte
 
         # run the agent with the user message and thread
         response = await financial_agent.run(user_message, thread=resumed_thread)
-
+        print('ressssponse:',response)
         # save the updated thread for future use
         serialized_thread = await resumed_thread.serialize()
         serialized_json = json.dumps(serialized_thread)

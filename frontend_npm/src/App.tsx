@@ -133,7 +133,7 @@ const App = () => {
       case 'flows':
         return <Flows />;
       case 'chat':
-        return <Chat />;
+        return <EnhancedChat />;
       default:
         return <AccountsConnected />;
     }

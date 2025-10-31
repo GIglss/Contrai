@@ -34,7 +34,7 @@ const EnhancedChat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [sessionId, setSessionId] = useState<string>('1234');
+  const [sessionId, setSessionId] = useState<string>('12346');
   const [userId] = useState<string>('user_123'); // Replace with actual user ID from auth
   const [error, setError] = useState<string | null>(null);
   const [pendingApprovals, setPendingApprovals] = useState<PendingApproval[]>([]);
@@ -42,9 +42,10 @@ const EnhancedChat: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Persist session and messages in localStorage
+  // Persist session and messages in sessionStorage
   const STORAGE_KEYS = {
     sessionId: 'contrai_chat_session_id_1',
+    // sessionId: '12346',
     messages: 'contrai_chat_messages',
     contextEnabled: 'contrai_chat_context_enabled'
   };
@@ -59,36 +60,34 @@ const EnhancedChat: React.FC = () => {
 
   // Load persisted data on component mount
   useEffect(() => {
-    try {
-      // Load session ID
-      const savedSessionId = localStorage.getItem(STORAGE_KEYS.sessionId);
-      if (savedSessionId) {
-        setSessionId(savedSessionId);
-      }
+    const initializeChat = async () => {
+      try {
+        // Load context setting
+        const savedContextEnabled = sessionStorage.getItem(STORAGE_KEYS.contextEnabled);
+        if (savedContextEnabled !== null) {
+          setContextEnabled(JSON.parse(savedContextEnabled));
+        }
 
-      // Load messages
-      const savedMessages = localStorage.getItem(STORAGE_KEYS.messages);
-      if (savedMessages) {
-        const parsedMessages = JSON.parse(savedMessages);
-        setMessages(parsedMessages);
-        return; // Don't show welcome message if we have saved messages
-      }
+        // Load session ID
+        const savedSessionId = sessionStorage.getItem(STORAGE_KEYS.sessionId);
+        let currentSessionId = savedSessionId || '12346'; // Default session ID
+        console.log('🔍 Debug sessionId:', { savedSessionId, currentSessionId });
+        setSessionId(currentSessionId);
 
-      // Load context setting
-      const savedContextEnabled = localStorage.getItem(STORAGE_KEYS.contextEnabled);
-      if (savedContextEnabled !== null) {
-        setContextEnabled(JSON.parse(savedContextEnabled));
-      }
-    } catch (error) {
-      console.error('Error loading saved chat data:', error);
-      // Clear corrupted data
-      localStorage.removeItem(STORAGE_KEYS.messages);
-    }
+        // Load messages from sessionStorage
+        const savedMessages = sessionStorage.getItem(STORAGE_KEYS.messages);
+        if (savedMessages) {
+          const parsedMessages = JSON.parse(savedMessages);
+          console.log('💾 Restored conversation from sessionStorage', currentSessionId);
+          setMessages(parsedMessages);
+          return; // Successfully restored from sessionStorage
+        }
 
-    // Show welcome message only if no saved messages
-    const welcomeMessage: Message = {
-      id: 'welcome',
-      content: `¡Hola! Soy tu asistente financiero inteligente de Contrai. 
+        // Show welcome message if no conversation found
+        console.log('🎉 Starting new conversation');
+        const welcomeMessage: Message = {
+          id: 'welcome',
+          content: `¡Hola! Soy tu asistente financiero inteligente de Contrai. 
 
 🤖 **Nuevas capacidades mejoradas:**
 • Recuerdo nuestras conversaciones anteriores
@@ -103,40 +102,56 @@ const EnhancedChat: React.FC = () => {
 • "Muestra un resumen de mis cuentas"
 
 ¿En qué puedo ayudarte hoy?`,
-      role: 'assistant',
-      timestamp: new Date().toISOString()
+          role: 'assistant',
+          timestamp: new Date().toISOString()
+        };
+        setMessages([welcomeMessage]);
+
+      } catch (error) {
+        console.error('❌ Error initializing chat:', error);
+        // Clear corrupted data and show welcome message
+        sessionStorage.removeItem(STORAGE_KEYS.messages);
+        const welcomeMessage: Message = {
+          id: 'welcome-error',
+          content: "¡Hola! Hubo un problema cargando la conversación anterior, pero estoy listo para ayudarte. ¿En qué puedo asistirte hoy?",
+          role: 'assistant',
+          timestamp: new Date().toISOString()
+        };
+        setMessages([welcomeMessage]);
+      }
     };
-    setMessages([welcomeMessage]);
+
+    initializeChat();
   }, []); // Empty dependency array - run only on mount
 
-  // Save messages to localStorage whenever they change
+  // Save messages to sessionStorage whenever they change
   useEffect(() => {
     if (messages.length > 0) {
       try {
-        localStorage.setItem(STORAGE_KEYS.messages, JSON.stringify(messages));
+        sessionStorage.setItem(STORAGE_KEYS.messages, JSON.stringify(messages));
       } catch (error) {
-        console.error('Error saving messages to localStorage:', error);
+        console.error('Error saving messages to sessionStorage:', error);
       }
     }
   }, [messages]);
 
-  // Save sessionId to localStorage whenever it changes
+  // Save sessionId to sessionStorage whenever it changes
   useEffect(() => {
     if (sessionId) {
       try {
-        localStorage.setItem(STORAGE_KEYS.sessionId, sessionId);
+        sessionStorage.setItem(STORAGE_KEYS.sessionId, sessionId);
       } catch (error) {
-        console.error('Error saving session ID to localStorage:', error);
+        console.error('Error saving session ID to sessionStorage:', error);
       }
     }
   }, [sessionId]);
 
-  // Save context setting to localStorage whenever it changes
+  // Save context setting to sessionStorage whenever it changes
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEYS.contextEnabled, JSON.stringify(contextEnabled));
+      sessionStorage.setItem(STORAGE_KEYS.contextEnabled, JSON.stringify(contextEnabled));
     } catch (error) {
-      console.error('Error saving context setting to localStorage:', error);
+      console.error('Error saving context setting to sessionStorage:', error);
     }
   }, [contextEnabled]);
 
@@ -184,7 +199,14 @@ const EnhancedChat: React.FC = () => {
         };
 
         setMessages(prev => [...prev, assistantMessage]);
-        setSessionId(data.session_id);
+        
+        // Only update session ID if we don't have one yet (for new conversations)
+        if (!sessionId || sessionId === '') {
+          console.log('🆔 Setting new session ID:', data.session_id);
+          setSessionId(data.session_id);
+        } else {
+          console.log('🔒 Keeping existing session ID:', sessionId, '(server wanted:', data.session_id, ')');
+        }
 
         // Handle pending approvals
         if (data.requires_approval && data.pending_approvals) {
@@ -265,12 +287,12 @@ const EnhancedChat: React.FC = () => {
     setPendingApprovals([]);
     setError(null);
     
-    // Clear from localStorage
+    // Clear from sessionStorage
     try {
-      localStorage.removeItem(STORAGE_KEYS.sessionId);
-      localStorage.removeItem(STORAGE_KEYS.messages);
+      sessionStorage.removeItem(STORAGE_KEYS.sessionId);
+      sessionStorage.removeItem(STORAGE_KEYS.messages);
     } catch (error) {
-      console.error('Error clearing localStorage:', error);
+      console.error('Error clearing sessionStorage:', error);
     }
     
     // Re-add welcome message
@@ -316,7 +338,6 @@ const EnhancedChat: React.FC = () => {
               checked={contextEnabled}
               onChange={(e) => setContextEnabled(e.target.checked)}
             />
-            <span>Contexto financiero</span>
           </label>
           <button 
             className={styles.clearBtn}
