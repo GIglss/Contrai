@@ -217,6 +217,16 @@ def get_rules_summary(user_financial_data: Annotated[str, Field(description="JSO
     except Exception as e:
         return f"Error getting rules summary: {str(e)}"
 
+from random import randint
+from typing import Annotated
+from pydantic import Field
+# @ai_function(approval_mode="always_require")
+def get_weather(
+    location: Annotated[str, Field(description="The location to get the weather for.")],
+) -> str:
+    """Get the weather for a given location."""
+    conditions = ["sunny", "cloudy", "rainy", "stormy"]
+    return f"The weather in {location} is {conditions[randint(0, 3)]} with a high of {randint(10, 12)}°C."
 
 class ContraiFinancialAgent(ChatAgent):
     """Main financial agent for Contrai application, inheriting from ChatAgent."""
@@ -271,7 +281,8 @@ class ContraiFinancialAgent(ChatAgent):
                 get_account_summary,
                 get_rules_summary,
                 create_savings_rule_suggestion,
-                analyze_spending_patterns
+                analyze_spending_patterns,
+                get_weather
             ]
         )
         

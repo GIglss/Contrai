@@ -1353,10 +1353,9 @@ def financial_chat_agent():
 
         within enhanced chat-->
         "message": "User's question about their finances",
+        "user_id": "string user id",
+        "session_id": "optional-uuid-for-conversation-tracking",
         "include_context": true
-        user_id: "string user id",
-        session_id: "optional-uuid-for-conversation-tracking",
-        include_context: true
     }
     """
     try:
@@ -1374,7 +1373,6 @@ def financial_chat_agent():
         # Validate Azure OpenAI configuration
         if not all([API_KEY, API_VERSION, AZURE_ENDPOINT, MODEL_TYPE]):
             return jsonify({'error': 'Azure OpenAI configuration incomplete. Please check environment variables.'}), 500
-        print('Data from fron', data)
         user_message = data['message']
         # conversation_id = data.get('conversation_id', str(uuid.uuid4()))
         conversation_id = data.get('session_id', str(uuid.uuid4()))
@@ -1443,7 +1441,6 @@ async def run_financial_agent_async(user_message, conversation_id, include_conte
 
         # run the agent with the user message and thread
         response = await financial_agent.run(user_message, thread=resumed_thread)
-        print('ressssponse:',response)
         # save the updated thread for future use
         serialized_thread = await resumed_thread.serialize()
         serialized_json = json.dumps(serialized_thread)
@@ -1457,7 +1454,7 @@ async def run_financial_agent_async(user_message, conversation_id, include_conte
         # return the agent's response
         return {
             'response': response.text if hasattr(response, 'text') else str(response),
-            'conversation_id': conversation_id,
+            'session_id': conversation_id,
             # 'context_included': bool(context_data),
             'timestamp': dt.datetime.now().isoformat()
         }
