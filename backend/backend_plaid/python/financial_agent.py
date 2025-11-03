@@ -220,7 +220,7 @@ def get_rules_summary(user_financial_data: Annotated[str, Field(description="JSO
 from random import randint
 from typing import Annotated
 from pydantic import Field
-# @ai_function(approval_mode="always_require")
+@ai_function(approval_mode="always_require")
 def get_weather(
     location: Annotated[str, Field(description="The location to get the weather for.")],
 ) -> str:

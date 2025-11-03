@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styles from './Chat.module.scss';
 
 interface Message {
@@ -11,7 +11,7 @@ interface Message {
 interface PendingApproval {
   function_name: string;
   arguments: any;
-  approval_id: string;
+  // approval_id: string;
 }
 
 interface ChatResponse {
@@ -34,7 +34,7 @@ const EnhancedChat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [sessionId, setSessionId] = useState<string>('12346');
+  const [sessionId, setSessionId] = useState<string>('012346');
   const [userId] = useState<string>('user_123'); // Replace with actual user ID from auth
   const [error, setError] = useState<string | null>(null);
   const [pendingApprovals, setPendingApprovals] = useState<PendingApproval[]>([]);
@@ -70,7 +70,7 @@ const EnhancedChat: React.FC = () => {
 
         // Load session ID
         const savedSessionId = sessionStorage.getItem(STORAGE_KEYS.sessionId);
-        let currentSessionId = savedSessionId || '12346'; // Default session ID
+        let currentSessionId = savedSessionId || '012346'; // Default session ID
         console.log('🔍 Debug sessionId:', { savedSessionId, currentSessionId });
         setSessionId(currentSessionId);
 
@@ -199,7 +199,7 @@ const EnhancedChat: React.FC = () => {
         };
 
         setMessages(prev => [...prev, assistantMessage]);
-        
+
         // Only update session ID if we don't have one yet (for new conversations)
         if (!sessionId || sessionId === '') {
           console.log('🆔 Setting new session ID:', data.session_id);
@@ -218,7 +218,7 @@ const EnhancedChat: React.FC = () => {
     } catch (err) {
       console.error('Error sending message:', err);
       setError('Error al comunicarse con el asistente. Intenta nuevamente.');
-      
+
       const errorMessage: Message = {
         id: `error-${Date.now()}`,
         content: 'Lo siento, hubo un error al procesar tu mensaje. Por favor intenta nuevamente.',
@@ -234,7 +234,7 @@ const EnhancedChat: React.FC = () => {
 
   const handleApproval = async (approval: PendingApproval, approved: boolean) => {
     setIsLoading(true);
-    
+
     try {
       const response = await fetch('/api/financial-chat-agent/approval', {
         method: 'POST',
@@ -243,7 +243,7 @@ const EnhancedChat: React.FC = () => {
         },
         body: JSON.stringify({
           session_id: sessionId,
-          approval_id: approval.approval_id,
+          // approval_id: approval.approval_id,
           approved: approved,
           user_id: userId
         }),
@@ -286,7 +286,7 @@ const EnhancedChat: React.FC = () => {
     setSessionId('');
     setPendingApprovals([]);
     setError(null);
-    
+
     // Clear from sessionStorage
     try {
       sessionStorage.removeItem(STORAGE_KEYS.sessionId);
@@ -294,7 +294,7 @@ const EnhancedChat: React.FC = () => {
     } catch (error) {
       console.error('Error clearing sessionStorage:', error);
     }
-    
+
     // Re-add welcome message
     const welcomeMessage: Message = {
       id: 'welcome-new',
@@ -339,7 +339,7 @@ const EnhancedChat: React.FC = () => {
               onChange={(e) => setContextEnabled(e.target.checked)}
             />
           </label>
-          <button 
+          <button
             className={styles.clearBtn}
             onClick={clearChat}
             title="Nueva sesión"
@@ -411,7 +411,7 @@ const EnhancedChat: React.FC = () => {
               </div>
             </div>
           ))}
-          
+
           {isLoading && (
             <div className={`${styles.message} ${styles.assistant}`}>
               <div className={styles.messageContent}>
@@ -424,7 +424,7 @@ const EnhancedChat: React.FC = () => {
               </div>
             </div>
           )}
-          
+
           <div ref={messagesEndRef} />
         </div>
       </div>

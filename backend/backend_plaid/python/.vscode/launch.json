@@ -1,0 +1,27 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Flask (server.py, port 8000)",
+            "type": "python",
+            "request": "launch",
+            "program": "server.py",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "FLASK_APP": "server.py",
+                "FLASK_ENV": "development",
+                "FLASK_DEBUG": "1",
+                "PYTHONASYNCIODEBUG": "1"
+            },
+            "args": [
+                "run",
+                "--no-debugger",
+                "--no-reload",
+                "--port=8000"
+            ],
+            "console": "integratedTerminal",
+            "jinja": true,
+            "justMyCode": false
+        }
+    ]
+}

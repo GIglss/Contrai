@@ -1403,8 +1403,13 @@ async def run_financial_agent_async(user_message, conversation_id, include_conte
         conversation_id = conversation_id or str(uuid.uuid4())
         # see if in the /contrai_chat_sessions there is an existing conversation thread to resume with such conversation_id
         temp_dir = './'
+        
+        # Ensure directory exists
+        sessions_dir = os.path.join(temp_dir, "contrai_chat_sessions")
+        os.makedirs(sessions_dir, exist_ok=True)
+        
         # if file exists, load it to the thread of such conversation
-        session_file = os.path.join(temp_dir, "contrai_chat_sessions", f"{conversation_id}.json")
+        session_file = os.path.join(sessions_dir, f"{conversation_id}.json")
         if os.path.exists(session_file):
             print(f"Resuming conversation with ID: {conversation_id}")
             # Read persisted JSON
@@ -1441,104 +1446,82 @@ async def run_financial_agent_async(user_message, conversation_id, include_conte
 
         # run the agent with the user message and thread
         response = await financial_agent.run(user_message, thread=resumed_thread)
-        # save the updated thread for future use
-        serialized_thread = await resumed_thread.serialize()
-        serialized_json = json.dumps(serialized_thread)
 
-        # save to a local file (replace with DB or blob storage in production)
-        file_path = os.path.join(temp_dir, "contrai_chat_sessions", f"{conversation_id}.json")
-        with open(file_path, "w") as f:
-            f.write(serialized_json)
+        # Check if approval is required
+        if response.user_input_requests:
+            # Save the thread state BEFORE responding to approval requests
+            serialized_thread = await resumed_thread.serialize()
+            serialized_json = json.dumps(serialized_thread)
 
+            # Save thread state for resuming after approval
+            file_path = os.path.join(sessions_dir, f"{conversation_id}.json")
+            with open(file_path, "w") as f:
+                f.write(serialized_json)
 
-        # return the agent's response
-        return {
-            'response': response.text if hasattr(response, 'text') else str(response),
-            'session_id': conversation_id,
-            # 'context_included': bool(context_data),
-            'timestamp': dt.datetime.now().isoformat()
-        }
+            # Also save pending approval details for the approval endpoint
+            approval_data = {
+                'user_input_requests': [],
+                'user_input_requests_objects': [],  # Store serialized objects
+                'original_query': user_message,
+                'timestamp': dt.datetime.now().isoformat()
+            }
+            
+            # Convert user input requests to serializable format
+            for req in response.user_input_requests:
+                # Basic format for frontend
+                approval_data['user_input_requests'].append({
+                    'function_name': req.function_call.name,
+                    'arguments': req.function_call.arguments,
+                    'approval_id': str(uuid.uuid4())  # Generate unique ID for each approval
+                })
+                
+                # Serialize the complete object for backend processing
+                try:
+                    if hasattr(req, 'to_dict'):
+                        serialized_obj = req.to_dict()
+                    elif hasattr(req, '__dict__'):
+                        serialized_obj = req.__dict__.copy()
+                    else:
+                        serialized_obj = {'type': type(req).__name__, 'str_repr': str(req)}
+                    
+                    approval_data['user_input_requests_objects'].append(serialized_obj)
+                except Exception as e:
+                    print(f"Error serializing user_input_request: {e}")
+                    approval_data['user_input_requests_objects'].append({
+                        'error': str(e),
+                        'type': type(req).__name__
+                    })
 
+            # Save approval state
+            approval_file = os.path.join(sessions_dir, f"{conversation_id}_pending.json")
+            with open(approval_file, "w") as f:
+                json.dump(approval_data, f, indent=2)
 
+            requires_approval = True
+            pending_approvals = approval_data['user_input_requests']
+            response_text = response.text if hasattr(response, 'text') and response.text else "I need your approval to perform the requested action. Please review the pending approvals below."
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        # Get financial context if requested
-        context_data = {}
-        if include_context:
-            try:
-                # Use existing function to get financial context
-                context_data = get_financial_context()
-                print("Financial context fetched successfully")
-            except Exception as e:
-                print(f"Warning: Could not fetch financial context: {e}")
-        
-        # Set up the agent's context
-        if context_data:
-            print("Using financial context for user query")
-            context_message = f"User's current financial context: {json.dumps(context_data, indent=2)}"
-            user_message = f"{context_message}\n\nUser question: {user_message}"
-        
-        # Use session directory for conversation persistence
-        session_dir = os.path.join('./', "contrai_chat_sessions")
-        os.makedirs(session_dir, exist_ok=True)
-        session_file = os.path.join(session_dir, f"{conversation_id}.json")
-        
-        # Load or create conversation thread
-        thread = None
-        if os.path.exists(session_file):
-            try:
-                with open(session_file, 'r') as f:
-                    thread_data = json.load(f)
-                thread = await financial_agent.deserialize_thread(thread_data)
-            except Exception as e:
-                print(f"Could not resume conversation: {e}")
-                thread = financial_agent.get_new_thread()
         else:
-            print(type(financial_agent))
-            thread = financial_agent.get_new_thread()
-            print('got new thread')
-        
-        # Run the agent
-        response = await financial_agent.run(user_message, thread=thread)
-        
-        # Save conversation thread
-        if hasattr(response, 'thread') and response.thread:
-            try:
-                thread_data = await response.thread.serialize()
-                with open(session_file, 'w') as f:
-                    json.dump(thread_data, f)
-            except Exception as e:
-                print(f"Could not save conversation: {e}")
-        
+            # No approval needed, save the updated thread normally
+            serialized_thread = await resumed_thread.serialize()
+            serialized_json = json.dumps(serialized_thread)
+
+            file_path = os.path.join(sessions_dir, f"{conversation_id}.json")
+            with open(file_path, "w") as f:
+                f.write(serialized_json)
+
+            requires_approval = False
+            pending_approvals = []
+            response_text = response.text if hasattr(response, 'text') else str(response)
+
         return {
-            'response': response.text if hasattr(response, 'text') else str(response),
-            'conversation_id': conversation_id,
-            'context_included': bool(context_data),
+            'response': response_text,
+            'session_id': conversation_id,
+            'requires_approval': requires_approval,
+            'pending_approvals': pending_approvals,
             'timestamp': dt.datetime.now().isoformat()
         }
-        
+    
     except Exception as e:
         print(f"Error in financial agent: {e}")
         return {
@@ -1547,5 +1530,137 @@ async def run_financial_agent_async(user_message, conversation_id, include_conte
             'timestamp': dt.datetime.now().isoformat()
         }
     
+#---------- approval handling ----------
+import datetime as datetime
+@app.route('/api/financial-chat-agent/approval', methods=['POST'])
+def handle_approval():
+    """
+    Handle approval responses for financial agent.
+    Expected payload:
+    {
+        "session_id": "session-id",
+        "approved": true/false,
+        "user_id": "user-id"
+    }
+    """
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({'error': 'Request data is required'}), 400
+        
+        session_id = data.get('session_id')
+        approved = data.get('approved', False)
+        user_id = data.get('user_id', 'default_user')
+        
+        if not session_id:
+            return jsonify({'error': 'session_id is required'}), 400
+        
+        if not AGENT_FRAMEWORK_AVAILABLE:
+            return jsonify({
+                'error': 'Agent framework not available',
+                'session_id': session_id
+            }), 503
+        
+        # Initialize agent if needed
+        if not initialize_financial_agent():
+            return jsonify({
+                'error': 'Failed to initialize financial agent',
+                'session_id': session_id
+            }), 503
+        
+        # Run the async approval handler
+        response = asyncio.run(handle_approval_async(session_id, approved, user_id))
+        
+        return jsonify(response)
+            
+    except Exception as e:
+        print(f"Error in handle_approval: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+async def handle_approval_async(session_id: str, approved: bool, user_id: str):
+    """Handle the approval workflow asynchronously."""
+    try:
+        temp_dir = './'
+        sessions_dir = os.path.join(temp_dir, "contrai_chat_sessions")
+        
+        # Load the pending approval data
+        approval_file = os.path.join(sessions_dir, f"{session_id}_pending.json")
+        if not os.path.exists(approval_file):
+            return {
+                'error': 'No pending approvals found for this session',
+                'session_id': session_id
+            }
+        
+        with open(approval_file, "r") as f:
+            approval_data = json.load(f)
+        
+        # Load the conversation thread
+        session_file = os.path.join(sessions_dir, f"{session_id}.json")
+        if not os.path.exists(session_file):
+            return {
+                'error': 'Session thread not found',
+                'session_id': session_id
+            }
+        
+        with open(session_file, "r") as f:
+            loaded_json = f.read()
+        
+        reloaded_data = json.loads(loaded_json)
+        resumed_thread = await financial_agent.deserialize_thread(reloaded_data)
+        
+        # Prepare the approval response following the agent framework pattern
+        from agent_framework import ChatMessage, Role, FunctionApprovalRequestContent
+        
+        # Build the context with the original query
+        original_query = approval_data.get('original_query', '')
+        new_inputs = [original_query]
+        
+        # Deserialize the user_input_request object back to the correct class
+        serialized_obj = approval_data['user_input_requests_objects'][0]
+        
+        # Reconstruct the FunctionCall object
+        function_call_data = serialized_obj.get('function_call', {})
+        
+        # Reconstruct the FunctionApprovalResponseContent object
+        user_input_needed = FunctionApprovalRequestContent(
+            id=serialized_obj.get('id'),
+            function_call=function_call_data
+        )
+        
+        
+        # Continue the conversation with the approval responses
+        final_response = await financial_agent.run(ChatMessage(role="user", contents=[user_input_needed.create_response(approved)]), thread=resumed_thread)
+        # final_response = await financial_agent.run(new_inputs, thread=resumed_thread)
+        
+        # Save the updated thread
+        serialized_thread = await resumed_thread.serialize()
+        serialized_json = json.dumps(serialized_thread)
+        
+        with open(session_file, "w") as f:
+            f.write(serialized_json)
+        
+        # Clean up the pending approval file
+        if os.path.exists(approval_file):
+            os.remove(approval_file)
+        
+        # Return the final response
+        final_text = final_response.text if hasattr(final_response, 'text') else str(final_response)
+        
+        return {
+            'response': final_text,
+            'session_id': session_id,
+            'approved': approved,
+            'timestamp': dt.datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        print(f"Error in handle_approval_async: {e}")
+        return {
+            'error': f"Approval handling error: {str(e)}",
+            'session_id': session_id
+        }
+
 if __name__ == '__main__':
     app.run(port=int(os.getenv('FLASK_RUN_PORT', 8000)))
