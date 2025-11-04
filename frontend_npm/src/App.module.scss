@@ -9,6 +9,7 @@ $threads-font-path: "~plaid-threads/fonts";
 .App {
   height: 100vh;
   overflow: hidden; // Prevent page scroll on iOS
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
 }
 
 .container {
@@ -19,7 +20,7 @@ $threads-font-path: "~plaid-threads/fonts";
   max-width: 100%;
   margin: 0;
   padding: 0;
-  background-color: #f8f9fa;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 
 .content {
@@ -27,6 +28,7 @@ $threads-font-path: "~plaid-threads/fonts";
   overflow-y: auto; // Enable scrolling within content area
   padding: env(safe-area-inset-top) 0 calc(env(safe-area-inset-bottom) + 100px) 0; // iOS safe area + bottom nav space
   -webkit-overflow-scrolling: touch; // Smooth scrolling on iOS
+  background: rgba(255, 255, 255, 0.1);
 }
 
 // iOS specific styles

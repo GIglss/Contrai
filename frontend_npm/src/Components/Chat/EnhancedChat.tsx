@@ -92,21 +92,22 @@ const EnhancedChat: React.FC = () => {
         console.log('🎉 Starting new conversation');
         const welcomeMessage: Message = {
           id: 'welcome',
-          content: `¡Hola! Soy tu asistente financiero inteligente de Contrai. 
+          content: `Bienvenido al Asistente Financiero Inteligente de Contrai.
 
-🤖 **Nuevas capacidades mejoradas:**
-• Recuerdo nuestras conversaciones anteriores
-• Analizo tus cuentas y reglas de transferencia en tiempo real  
-• Puedo sugerir mejoras financieras personalizadas
-• Solicito aprobación para acciones sensibles
+🏦 **Capacidades Avanzadas:**
+• Análisis integral de sus cuentas y transacciones
+• Gestión inteligente de reglas de transferencia
+• Recomendaciones financieras personalizadas  
+• Proceso de aprobación para operaciones sensibles
+• Memoria conversacional para seguimiento continuo
 
-💬 **Puedes preguntarme:**
-• "¿Cómo están mis finanzas?"
-• "Analiza mis patrones de gasto"
-• "Sugiere una regla de ahorro del 20%"
-• "Muestra un resumen de mis cuentas"
+💼 **Servicios Disponibles:**
+• "Analice mi situación financiera actual"
+• "Revise mis patrones de gastos e ingresos"
+• "Establezca una regla de ahorro automático"
+• "Proporcione un resumen detallado de mis cuentas"
 
-¿En qué puedo ayudarte hoy?`,
+¿En qué puedo asistirle hoy?`,
           role: 'assistant',
           timestamp: new Date().toISOString()
         };
@@ -118,7 +119,7 @@ const EnhancedChat: React.FC = () => {
         sessionStorage.removeItem(STORAGE_KEYS.messages);
         const welcomeMessage: Message = {
           id: 'welcome-error',
-          content: "¡Hola! Hubo un problema cargando la conversación anterior, pero estoy listo para ayudarte. ¿En qué puedo asistirte hoy?",
+          content: "Bienvenido al Asistente Financiero de Contrai. Se ha producido un error al recuperar la sesión anterior, pero el sistema está operativo y listo para asistirle. ¿En qué puedo ayudarle hoy?",
           role: 'assistant',
           timestamp: new Date().toISOString()
         };
@@ -236,11 +237,11 @@ const EnhancedChat: React.FC = () => {
       }
     } catch (err) {
       console.error('Error sending message:', err);
-      setError('Error al comunicarse con el asistente. Intenta nuevamente.');
+      setError('Error en la comunicación con el asistente. Por favor, intente nuevamente.');
 
       const errorMessage: Message = {
         id: `error-${Date.now()}`,
-        content: 'Lo siento, hubo un error al procesar tu mensaje. Por favor intenta nuevamente.',
+        content: 'Se ha producido un error al procesar su solicitud. Por favor, inténtelo nuevamente o contacte al soporte técnico si el problema persiste.',
         role: 'assistant',
         timestamp: new Date().toISOString()
       };
@@ -313,7 +314,7 @@ const EnhancedChat: React.FC = () => {
       }
     } catch (err) {
       console.error('Error handling approval:', err);
-      setError('Error al procesar la aprobación.');
+      setError('Error al procesar la solicitud de aprobación.');
 
       // Revert the approval message status on error
       setMessages(prev => prev.map(msg =>
@@ -350,7 +351,7 @@ const EnhancedChat: React.FC = () => {
     // Re-add welcome message
     const welcomeMessage: Message = {
       id: 'welcome-new',
-      content: "💬 **Nueva conversación iniciada** \n\nChat reiniciado. ¿En qué puedo ayudarte hoy?",
+      content: "� **Nueva Sesión Iniciada** \n\nSesión reiniciada exitosamente. El asistente está listo para proporcionarle servicios financieros. ¿Cómo puedo asistirle?",
       role: 'assistant',
       timestamp: new Date().toISOString()
     };
@@ -524,8 +525,8 @@ Esta acción requiere tu aprobación antes de continuar. ¿Deseas proceder?`;
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder={pendingApprovals.length > 0 ?
-              "Responde las aprobaciones pendientes primero..." :
-              "Pregunta sobre tus finanzas... ej: 'analiza mis cuentas'"
+              "Por favor, responda a las solicitudes de aprobación pendientes..." :
+              "Ingrese su consulta financiera... ej: 'analice mis cuentas'"
             }
             className={styles.messageInput}
             disabled={isLoading || (pendingApprovals.length > 0)}
@@ -540,8 +541,8 @@ Esta acción requiere tu aprobación antes de continuar. ¿Deseas proceder?`;
           </button>
         </div>
         <div className={styles.inputHint}>
-          Enter para enviar • {contextEnabled ? '✅ Con' : '❌ Sin'} contexto financiero
-          {pendingApprovals.length > 0 && ' • Responde las aprobaciones primero'}
+          Presione Enter para enviar • {contextEnabled ? '✅ Con' : '❌ Sin'} contexto financiero
+          {pendingApprovals.length > 0 && ' • Responda las aprobaciones pendientes'}
         </div>
       </div>
     </div>

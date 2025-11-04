@@ -1,124 +1,213 @@
+// Professional Rules Component Styling
 .rules {
   width: 100%;
   margin: 0;
-  padding: 1rem;
+  padding: 2rem;
   height: 100%;
   overflow-y: auto;
+  background: rgba(255, 255, 255, 0.1);
+
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: 1rem;
+  }
 
   @media (min-width: 768px) {
-    max-width: 600px;
+    max-width: 800px;
     margin: 0 auto;
   }
 }
 
 .header {
+  background: white;
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  margin-bottom: 2rem;
   text-align: center;
-  margin-bottom: 1.5rem;
+
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: 1.25rem;
+  }
 
   h2 {
-    color: #1a1a1a;
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin: 0 0 0.5rem 0;
-    
-    @media (min-width: 480px) {
+    color: #2d3748;
+    font-size: 2.25rem;
+    font-weight: 700;
+    margin: 0 0 0.75rem 0;
+    letter-spacing: -0.025em;
+
+    @media (max-width: 768px) {
+      font-size: 2rem;
+    }
+
+    @media (max-width: 480px) {
       font-size: 1.75rem;
     }
   }
 
   p {
-    color: #666;
-    font-size: 0.9rem;
+    color: #64748b;
+    font-size: 1.1rem;
     margin: 0 0 1.5rem 0;
+    font-weight: 400;
+
+    @media (max-width: 480px) {
+      font-size: 1rem;
+    }
   }
 }
 
 .createBtn {
-  background: #007aff;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 0.75rem 1.5rem;
-  font-size: 0.9rem;
-  font-weight: 500;
+  border-radius: 12px;
+  padding: 1rem 2rem;
+  font-size: 0.95rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
-  min-height: 44px; // iOS touch target minimum
+  transition: all 0.3s ease;
+  min-height: 48px; // iOS touch target minimum
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
   -webkit-tap-highlight-color: transparent; // Remove iOS tap highlight
 
   &:hover {
-    background: #0056cc;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
   }
 
   &:active {
     transform: scale(0.98);
   }
+
+  @media (max-width: 480px) {
+    padding: 0.875rem 1.5rem;
+    font-size: 0.9rem;
+  }
 }
 
 .error {
-  background: #fee;
-  border: 1px solid #fcc;
-  color: #c33;
-  padding: 0.75rem;
-  border-radius: 6px;
-  margin-bottom: 1.5rem;
-  font-size: 0.9rem;
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  border: 2px solid #fca5a5;
+  color: #dc2626;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(248, 113, 113, 0.15);
+
+  @media (max-width: 480px) {
+    padding: 0.875rem 1.25rem;
+    margin-bottom: 1.5rem;
+  }
 }
 
 .loading {
   text-align: center;
-  color: #666;
-  padding: 2rem;
-  font-size: 0.9rem;
+  color: #64748b;
+  padding: 3rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+  @media (max-width: 480px) {
+    padding: 2rem 1.5rem;
+    font-size: 1rem;
+  }
 }
 
 .empty {
   text-align: center;
-  padding: 3rem 1rem;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+  @media (max-width: 480px) {
+    padding: 3rem 1.5rem;
+  }
 
   .emptyIcon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.7;
+
+    @media (max-width: 480px) {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
   }
 
   h3 {
-    color: #333;
-    font-size: 1.2rem;
-    margin: 0 0 0.5rem 0;
+    color: #2d3748;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 0.75rem 0;
+
+    @media (max-width: 480px) {
+      font-size: 1.25rem;
+    }
   }
 
   p {
-    color: #666;
-    font-size: 0.9rem;
-    margin: 0 0 1.5rem 0;
+    color: #64748b;
+    font-size: 1rem;
+    margin: 0 0 2rem 0;
+    line-height: 1.5;
+
+    @media (max-width: 480px) {
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
   }
 }
 
 .rulesList {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
+
+  @media (max-width: 480px) {
+    gap: 1.25rem;
+  }
 }
 
 .ruleCard {
   background: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  padding: 1.25rem;
-  transition: all 0.2s ease;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  border-radius: 20px;
+  padding: 1.75rem;
+  transition: all 0.3s ease;
   cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+  @media (max-width: 480px) {
+    padding: 1.25rem;
+  }
 
   &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-color: #d0d0d0;
-    transform: translateY(-1px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    border-color: rgba(102, 126, 234, 0.2);
+    transform: translateY(-2px);
   }
 
   &.inactive {
-    opacity: 0.6;
-    background: #f9f9f9;
+    opacity: 0.7;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   }
 }
 
@@ -126,96 +215,108 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
 
   h3 {
-    color: #1a1a1a;
-    font-size: 1.1rem;
-    font-weight: 600;
+    color: #2d3748;
+    font-size: 1.25rem;
+    font-weight: 700;
     margin: 0;
     flex: 1;
+    letter-spacing: -0.025em;
+
+    @media (max-width: 480px) {
+      font-size: 1.1rem;
+    }
   }
 }
 
 .status {
-  padding: 0.25rem 0.75rem;
+  padding: 0.5rem 1rem;
   border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: 0.8rem;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   border: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
   &:hover {
     transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
   &.active {
-    background: #e8f5e8;
-    color: #2d5a2d;
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: #065f46;
 
     &:hover {
-      background: #d4ead4;
+      background: linear-gradient(135deg, #a7f3d0 0%, #6ee7b7 100%);
     }
   }
 
   &.inactive {
-    background: #f0f0f0;
-    color: #666;
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    color: #475569;
 
     &:hover {
-      background: #e0e0e0;
+      background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
     }
   }
 }
 
 .description {
-  color: #666;
-  font-size: 0.9rem;
-  margin: 0 0 1rem 0;
-  line-height: 1.4;
+  color: #64748b;
+  font-size: 0.95rem;
+  margin: 0 0 1.25rem 0;
+  line-height: 1.5;
+  font-weight: 400;
 }
 
 .ruleDetails {
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 }
 
 .transfer .fromTo {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
 
-  .from, .to {
-    font-size: 0.85rem;
-    color: #555;
-    padding: 0.25rem 0.5rem;
-    background: #f5f5f5;
-    border-radius: 4px;
+  .from,
+  .to {
+    font-size: 0.9rem;
+    color: #2d3748;
+    font-weight: 500;
+    padding: 0.5rem 0.875rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: 12px;
     max-width: 200px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    border: 1px solid #e2e8f0;
   }
 
   .arrow {
-    color: #007aff;
+    color: #667eea;
     font-weight: bold;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
+    padding: 0.25rem;
   }
 
   @media (max-width: 600px) {
     flex-direction: column;
     align-items: flex-start;
-    
-    .from, .to {
+
+    .from,
+    .to {
       max-width: 100%;
     }
-    
+
     .arrow {
       transform: rotate(90deg);
       align-self: center;
@@ -229,18 +330,21 @@
   align-items: center;
 
   .amount {
-    color: #007aff;
-    font-weight: 600;
-    font-size: 1.1rem;
+    color: #667eea;
+    font-weight: 700;
+    font-size: 1.2rem;
+    letter-spacing: -0.025em;
   }
 
   .frequency {
-    color: #666;
-    font-size: 0.85rem;
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 500;
     text-transform: capitalize;
-    padding: 0.25rem 0.5rem;
-    background: #f0f0f0;
-    border-radius: 4px;
+    padding: 0.375rem 0.875rem;
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
   }
 }
 
@@ -248,21 +352,26 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.75rem;
-  color: #999;
-  padding-top: 0.75rem;
-  border-top: 1px solid #f0f0f0;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  padding-top: 1rem;
+  border-top: 1px solid #f1f5f9;
   position: relative;
+  font-weight: 500;
 
   &::after {
-    content: "✏️ Click to edit";
+    content: "✏️ Clic para editar";
     position: absolute;
     right: 0;
-    top: -1.5rem;
-    font-size: 0.7rem;
-    color: #007aff;
+    top: -1.75rem;
+    font-size: 0.75rem;
+    color: #667eea;
+    font-weight: 600;
     opacity: 0;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.3s ease;
+    background: rgba(102, 126, 234, 0.1);
+    padding: 0.25rem 0.5rem;
+    border-radius: 8px;
   }
 
   .ruleCard:hover &::after {
@@ -272,10 +381,10 @@
   @media (max-width: 600px) {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.25rem;
+    gap: 0.375rem;
 
     &::after {
-      top: -1.2rem;
+      top: -1.5rem;
       right: 0;
     }
   }
