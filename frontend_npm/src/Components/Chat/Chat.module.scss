@@ -13,7 +13,7 @@
   padding: 1rem;
   background: white;
   border-bottom: 1px solid #e9ecef;
-  
+
   @media (max-width: 480px) {
     padding: 0.75rem;
   }
@@ -24,7 +24,7 @@
   font-size: 1.5rem;
   margin: 0 0 0.25rem 0;
   font-weight: 600;
-  
+
   @media (max-width: 480px) {
     font-size: 1.25rem;
   }
@@ -34,6 +34,35 @@
   color: #6c757d;
   font-size: 0.9rem;
   margin: 0;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  @media (max-width: 480px) {
+    gap: 0.5rem;
+  }
+}
+
+.contextToggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #6c757d;
+  cursor: pointer;
+
+  input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #007aff;
+  }
+
+  &::after {
+    content: 'Contexto';
+  }
 }
 
 .clearBtn {
@@ -83,7 +112,7 @@
   flex-direction: column;
   gap: 1rem;
   -webkit-overflow-scrolling: touch;
-  
+
   @media (max-width: 480px) {
     padding: 0.75rem;
     gap: 0.75rem;
@@ -95,7 +124,7 @@
   flex-direction: column;
   max-width: 80%;
   animation: slideIn 0.3s ease-out;
-  
+
   @media (max-width: 480px) {
     max-width: 90%;
   }
@@ -109,6 +138,19 @@
     align-self: flex-start;
     align-items: flex-start;
   }
+
+  &.approval {
+    align-self: flex-start;
+    align-items: flex-start;
+    width: 100%;
+    max-width: 95%;
+  }
+
+  &.system {
+    align-self: center;
+    align-items: center;
+    max-width: 70%;
+  }
 }
 
 .messageContent {
@@ -118,13 +160,13 @@
   line-height: 1.4;
   word-wrap: break-word;
   position: relative;
-  
+
   .user & {
     background: #007aff;
     color: white;
     border-bottom-right-radius: 6px;
   }
-  
+
   .assistant & {
     background: white;
     color: #2c3e50;
@@ -132,10 +174,152 @@
     border-bottom-left-radius: 6px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   }
-  
+
+  .approval & {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    color: #856404;
+    border: 2px solid #ffc107;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.2);
+    position: relative;
+
+    &::before {
+      content: '⚠️';
+      position: absolute;
+      top: -10px;
+      left: 20px;
+      background: #ffc107;
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+  }
+
+  .system & {
+    background: #e3f2fd;
+    color: #1565c0;
+    border: 1px solid #bbdefb;
+    border-radius: 20px;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
   @media (max-width: 480px) {
     padding: 0.625rem 0.875rem;
     font-size: 0.9rem;
+  }
+}
+
+// Approval message specific styles
+.approvalMessage {
+  width: 100%;
+}
+
+.approvalContent {
+  margin-bottom: 1rem;
+
+  pre {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    overflow-x: auto;
+    margin: 0.5rem 0;
+  }
+}
+
+.approvalActions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(133, 100, 4, 0.2);
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+.approvalBtn {
+  padding: 0.625rem 1.25rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &.approve {
+    background: #28a745;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background: #218838;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+    }
+  }
+
+  &.deny {
+    background: #dc3545;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background: #c82333;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+    }
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+}
+
+.approvalStatus {
+  display: flex;
+  justify-content: center;
+  padding: 0.75rem;
+  margin-top: 1rem;
+  border-top: 1px solid rgba(133, 100, 4, 0.2);
+
+  span {
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+
+    &.statusApproved {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    &.statusDenied {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    &.statusProcessed {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
   }
 }
 
@@ -144,11 +328,11 @@
   color: #6c757d;
   margin-top: 0.25rem;
   opacity: 0.8;
-  
+
   .user & {
     text-align: right;
   }
-  
+
   .assistant & {
     text-align: left;
   }
@@ -158,17 +342,25 @@
   display: inline-flex;
   gap: 0.25rem;
   margin-right: 0.5rem;
-  
+
   span {
     width: 6px;
     height: 6px;
     background: #6c757d;
     border-radius: 50%;
     animation: typing 1.4s infinite ease-in-out;
-    
-    &:nth-child(1) { animation-delay: 0ms; }
-    &:nth-child(2) { animation-delay: 200ms; }
-    &:nth-child(3) { animation-delay: 400ms; }
+
+    &:nth-child(1) {
+      animation-delay: 0ms;
+    }
+
+    &:nth-child(2) {
+      animation-delay: 200ms;
+    }
+
+    &:nth-child(3) {
+      animation-delay: 400ms;
+    }
   }
 }
 
@@ -176,7 +368,7 @@
   background: white;
   border-top: 1px solid #e9ecef;
   padding: 1rem;
-  
+
   @media (max-width: 480px) {
     padding: 0.75rem;
   }
@@ -191,7 +383,7 @@
   border-radius: 25px;
   padding: 0.5rem;
   transition: border-color 0.2s ease;
-  
+
   &:focus-within {
     border-color: #007aff;
     box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
@@ -207,15 +399,15 @@
   outline: none;
   resize: none;
   font-family: inherit;
-  
+
   &::placeholder {
     color: #6c757d;
   }
-  
+
   &:disabled {
     opacity: 0.6;
   }
-  
+
   @media (max-width: 480px) {
     font-size: 16px; // Prevent zoom on iOS
   }
@@ -233,16 +425,16 @@
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 1.2rem;
-  
+
   &:hover:not(:disabled) {
     background: #0056cc;
     transform: scale(1.05);
   }
-  
+
   &:active:not(:disabled) {
     transform: scale(0.95);
   }
-  
+
   &:disabled {
     background: #6c757d;
     cursor: not-allowed;
@@ -264,6 +456,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -271,10 +464,14 @@
 }
 
 @keyframes typing {
-  0%, 60%, 100% {
+
+  0%,
+  60%,
+  100% {
     transform: scale(1);
     opacity: 0.4;
   }
+
   30% {
     transform: scale(1.2);
     opacity: 1;
@@ -293,7 +490,7 @@
 .messages::-webkit-scrollbar-thumb {
   background: #cbd5e0;
   border-radius: 3px;
-  
+
   &:hover {
     background: #a0aec0;
   }
@@ -304,7 +501,7 @@
   .messagesContainer {
     height: calc(100vh - 180px);
   }
-  
+
   .messages {
     -webkit-overflow-scrolling: touch;
   }

@@ -4,14 +4,19 @@ import styles from './Chat.module.scss';
 interface Message {
   id: string;
   content: string;
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'approval' | 'system';
   timestamp: string;
+  approvalData?: PendingApproval;
+  isApprovalRequest?: boolean;
+  approvalStatus?: 'pending' | 'approved' | 'denied' | 'processed';
 }
 
 interface PendingApproval {
   function_name: string;
   arguments: any;
-  // approval_id: string;
+  approval_id?: string;
+  description?: string;
+  risk_level?: 'low' | 'medium' | 'high';
 }
 
 interface ChatResponse {
@@ -208,9 +213,23 @@ const EnhancedChat: React.FC = () => {
           console.log('🔒 Keeping existing session ID:', sessionId, '(server wanted:', data.session_id, ')');
         }
 
-        // Handle pending approvals
+        // Handle pending approvals - Create approval messages instead of separate UI
         if (data.requires_approval && data.pending_approvals) {
           setPendingApprovals(data.pending_approvals);
+
+          // Create approval messages for each pending approval
+          data.pending_approvals.forEach((approval, index) => {
+            const approvalMessage: Message = {
+              id: `approval-${Date.now()}-${index}`,
+              content: getApprovalMessageContent(approval),
+              role: 'approval',
+              timestamp: new Date().toISOString(),
+              approvalData: approval,
+              isApprovalRequest: true,
+              approvalStatus: 'pending'
+            };
+            setMessages(prev => [...prev, approvalMessage]);
+          });
         }
       } else {
         throw new Error('No response received');
@@ -232,8 +251,24 @@ const EnhancedChat: React.FC = () => {
     }
   };
 
-  const handleApproval = async (approval: PendingApproval, approved: boolean) => {
+  const handleApproval = async (approval: PendingApproval, approved: boolean, messageId: string) => {
     setIsLoading(true);
+
+    // Update the approval message status immediately for better UX
+    setMessages(prev => prev.map(msg =>
+      msg.id === messageId
+        ? { ...msg, approvalStatus: approved ? 'approved' : 'denied' }
+        : msg
+    ));
+
+    // Add system message about the decision
+    const decisionMessage: Message = {
+      id: `decision-${Date.now()}`,
+      content: `${approved ? '✅' : '❌'} **${approved ? 'Aprobado' : 'Denegado'}**: ${getFunctionDisplayName(approval.function_name)}`,
+      role: 'system',
+      timestamp: new Date().toISOString()
+    };
+    setMessages(prev => [...prev, decisionMessage]);
 
     try {
       const response = await fetch('/api/financial-chat-agent/approval', {
@@ -243,9 +278,10 @@ const EnhancedChat: React.FC = () => {
         },
         body: JSON.stringify({
           session_id: sessionId,
-          // approval_id: approval.approval_id,
+          approval_id: approval.approval_id,
           approved: approved,
-          user_id: userId
+          user_id: userId,
+          function_name: approval.function_name
         }),
       });
 
@@ -256,19 +292,35 @@ const EnhancedChat: React.FC = () => {
       const data: ApprovalResponse = await response.json();
 
       if (data.response) {
-        const approvalMessage: Message = {
-          id: `approval-${Date.now()}`,
+        const approvalResultMessage: Message = {
+          id: `approval-result-${Date.now()}`,
           content: data.response,
           role: 'assistant',
           timestamp: data.timestamp
         };
 
-        setMessages(prev => [...prev, approvalMessage]);
-        setPendingApprovals([]); // Clear pending approvals
+        setMessages(prev => [...prev, approvalResultMessage]);
+
+        // Remove this approval from pending list
+        setPendingApprovals(prev => prev.filter(a => a.approval_id !== approval.approval_id));
+
+        // Update the original approval message to processed
+        setMessages(prev => prev.map(msg =>
+          msg.id === messageId
+            ? { ...msg, approvalStatus: 'processed' }
+            : msg
+        ));
       }
     } catch (err) {
       console.error('Error handling approval:', err);
       setError('Error al procesar la aprobación.');
+
+      // Revert the approval message status on error
+      setMessages(prev => prev.map(msg =>
+        msg.id === messageId
+          ? { ...msg, approvalStatus: 'pending' }
+          : msg
+      ));
     } finally {
       setIsLoading(false);
     }
@@ -322,6 +374,35 @@ const EnhancedChat: React.FC = () => {
     }
   };
 
+  const getApprovalMessageContent = (approval: PendingApproval) => {
+    const riskEmoji = approval.risk_level === 'high' ? '🔴' :
+      approval.risk_level === 'medium' ? '🟡' : '🟢';
+
+    return `${riskEmoji} **Aprobación Requerida**
+
+**Acción:** ${approval.function_name}
+${approval.description ? `**Descripción:** ${approval.description}` : ''}
+
+**Parámetros:**
+\`\`\`
+${formatFunctionArguments(approval.arguments)}
+\`\`\`
+
+Esta acción requiere tu aprobación antes de continuar. ¿Deseas proceder?`;
+  };
+
+  const getFunctionDisplayName = (functionName: string) => {
+    const functionNames: { [key: string]: string } = {
+      'create_transfer_rule': 'Crear Regla de Transferencia',
+      'update_transfer_rule': 'Actualizar Regla de Transferencia',
+      'delete_transfer_rule': 'Eliminar Regla de Transferencia',
+      'execute_transfer': 'Ejecutar Transferencia',
+      'get_account_balance': 'Consultar Saldo de Cuenta',
+      'analyze_spending_patterns': 'Analizar Patrones de Gasto'
+    };
+    return functionNames[functionName] || functionName;
+  };
+
   return (
     <div className={styles.chat}>
       <div className={styles.header}>
@@ -355,43 +436,7 @@ const EnhancedChat: React.FC = () => {
         </div>
       )}
 
-      {/* Pending Approvals UI */}
-      {pendingApprovals.length > 0 && (
-        <div className={styles.approvalsContainer}>
-          <div className={styles.approvalsHeader}>
-            <span>⚠️ Aprobación requerida</span>
-          </div>
-          {pendingApprovals.map((approval, index) => (
-            <div key={index} className={styles.approvalCard}>
-              <div className={styles.approvalInfo}>
-                <h4>🔧 {approval.function_name}</h4>
-                <details className={styles.approvalDetails}>
-                  <summary>Ver parámetros</summary>
-                  <pre className={styles.approvalArgs}>
-                    {formatFunctionArguments(approval.arguments)}
-                  </pre>
-                </details>
-              </div>
-              <div className={styles.approvalActions}>
-                <button
-                  className={`${styles.approvalBtn} ${styles.approve}`}
-                  onClick={() => handleApproval(approval, true)}
-                  disabled={isLoading}
-                >
-                  ✅ Aprobar
-                </button>
-                <button
-                  className={`${styles.approvalBtn} ${styles.deny}`}
-                  onClick={() => handleApproval(approval, false)}
-                  disabled={isLoading}
-                >
-                  ❌ Denegar
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Pending Approvals UI - Remove this section as approvals are now inline */}
 
       <div className={styles.messagesContainer}>
         <div className={styles.messages}>
@@ -401,7 +446,48 @@ const EnhancedChat: React.FC = () => {
               className={`${styles.message} ${styles[message.role]}`}
             >
               <div className={styles.messageContent}>
-                {formatMessage(message.content)}
+                {message.isApprovalRequest ? (
+                  <div className={styles.approvalMessage}>
+                    <div className={styles.approvalContent}>
+                      {formatMessage(message.content)}
+                    </div>
+                    {message.approvalStatus === 'pending' && (
+                      <div className={styles.approvalActions}>
+                        <button
+                          className={`${styles.approvalBtn} ${styles.approve}`}
+                          onClick={() => handleApproval(message.approvalData!, true, message.id)}
+                          disabled={isLoading}
+                        >
+                          ✅ Aprobar
+                        </button>
+                        <button
+                          className={`${styles.approvalBtn} ${styles.deny}`}
+                          onClick={() => handleApproval(message.approvalData!, false, message.id)}
+                          disabled={isLoading}
+                        >
+                          ❌ Denegar
+                        </button>
+                      </div>
+                    )}
+                    {message.approvalStatus === 'approved' && (
+                      <div className={styles.approvalStatus}>
+                        <span className={styles.statusApproved}>✅ Aprobado - Procesando...</span>
+                      </div>
+                    )}
+                    {message.approvalStatus === 'denied' && (
+                      <div className={styles.approvalStatus}>
+                        <span className={styles.statusDenied}>❌ Denegado</span>
+                      </div>
+                    )}
+                    {message.approvalStatus === 'processed' && (
+                      <div className={styles.approvalStatus}>
+                        <span className={styles.statusProcessed}>✅ Completado</span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  formatMessage(message.content)
+                )}
               </div>
               <div className={styles.messageTime}>
                 {new Date(message.timestamp).toLocaleTimeString('es-ES', {
@@ -437,14 +523,17 @@ const EnhancedChat: React.FC = () => {
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Pregunta sobre tus finanzas... ej: 'analiza mis cuentas'"
+            placeholder={pendingApprovals.length > 0 ?
+              "Responde las aprobaciones pendientes primero..." :
+              "Pregunta sobre tus finanzas... ej: 'analiza mis cuentas'"
+            }
             className={styles.messageInput}
-            disabled={isLoading || pendingApprovals.length > 0}
+            disabled={isLoading || (pendingApprovals.length > 0)}
             maxLength={500}
           />
           <button
             onClick={sendMessage}
-            disabled={isLoading || !inputMessage.trim() || pendingApprovals.length > 0}
+            disabled={isLoading || !inputMessage.trim() || (pendingApprovals.length > 0)}
             className={styles.sendBtn}
           >
             {isLoading ? '⏳' : '🚀'}
